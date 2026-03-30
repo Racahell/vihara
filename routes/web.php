@@ -1,5 +1,6 @@
 <?php
 
+<<<<<<< HEAD
 use App\Http\Controllers\Admin\ActivityManagementController;
 use App\Http\Controllers\Admin\DonationVerificationController;
 use App\Http\Controllers\Admin\LogController;
@@ -113,3 +114,14 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::post('/donations/{donation}/proof', [DonationController::class, 'uploadProof'])->name('donations.upload-proof');
     });
 });
+=======
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Login;
+
+Route::get('/login', [Login::class, 'showLoginForm'])->name('login');
+Route::post('/login', [Login::class, 'login']);
+Route::post('/logout', [Login::class, 'logout'])->name('logout');
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware('auth');
+>>>>>>> e2927c017d800ba2c0919a3f2a14f7de18623268

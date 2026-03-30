@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+<<<<<<< HEAD
 use App\Models\Activity;
 use App\Models\DonationCategory;
 use App\Models\Role;
@@ -95,5 +96,26 @@ class DatabaseSeeder extends Seeder
                 ]);
             }
         }
+=======
+use App\Models\User;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+
+class DatabaseSeeder extends Seeder
+{
+    use WithoutModelEvents;
+
+    /**
+     * Seed the application's database.
+     */
+    public function run(): void
+    {
+        // User::factory(10)->create();
+
+        User::factory()->create([
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+        ]);
+>>>>>>> e2927c017d800ba2c0919a3f2a14f7de18623268
     }
 }

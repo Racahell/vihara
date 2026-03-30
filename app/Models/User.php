@@ -2,15 +2,22 @@
 
 namespace App\Models;
 
+<<<<<<< HEAD
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
+=======
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+>>>>>>> e2927c017d800ba2c0919a3f2a14f7de18623268
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
+<<<<<<< HEAD
     use HasFactory, Notifiable, SoftDeletes;
 
     protected $fillable = [
@@ -27,16 +34,45 @@ class User extends Authenticatable
         'registration_ip',
     ];
 
+=======
+    use HasFactory, Notifiable;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var list<string>
+     */
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var list<string>
+     */
+>>>>>>> e2927c017d800ba2c0919a3f2a14f7de18623268
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
+<<<<<<< HEAD
+=======
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+>>>>>>> e2927c017d800ba2c0919a3f2a14f7de18623268
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+<<<<<<< HEAD
             'is_active' => 'boolean',
             'activated_at' => 'datetime',
             'last_login_at' => 'datetime',
@@ -57,4 +93,8 @@ class User extends Authenticatable
     {
         return $this->roles->whereIn('slug', $roles)->isNotEmpty();
     }
+=======
+        ];
+    }
+>>>>>>> e2927c017d800ba2c0919a3f2a14f7de18623268
 }

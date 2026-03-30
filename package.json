@@ -9,11 +9,16 @@
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",
         "axios": "^1.11.0",
+<<<<<<< HEAD
         "chart.js": "^4.5.1",
         "concurrently": "^9.0.1",
         "html5-qrcode": "^2.3.8",
         "laravel-vite-plugin": "^2.0.0",
         "qrcode": "^1.5.4",
+=======
+        "concurrently": "^9.0.1",
+        "laravel-vite-plugin": "^2.0.0",
+>>>>>>> e2927c017d800ba2c0919a3f2a14f7de18623268
         "tailwindcss": "^4.0.0",
         "vite": "^7.0.7"
     }

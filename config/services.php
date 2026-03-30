@@ -35,6 +35,7 @@ return [
         ],
     ],
 
+<<<<<<< HEAD
     'midtrans' => [
         'server_key' => env('MIDTRANS_SERVER_KEY'),
         'client_key' => env('MIDTRANS_CLIENT_KEY'),
@@ -52,4 +53,6 @@ return [
         'offline_enabled' => env('CAPTCHA_OFFLINE_ENABLED', true),
     ],
 
+=======
+>>>>>>> e2927c017d800ba2c0919a3f2a14f7de18623268
 ];

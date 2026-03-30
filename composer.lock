@@ -4,6 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
+<<<<<<< HEAD
     "content-hash": "bb8f4859563d01c7839405c54d5b74a2",
     "packages": [
         {
@@ -138,6 +139,11 @@
             "time": "2026-02-21T08:51:10+00:00"
         },
         {
+=======
+    "content-hash": "53b5d56b3b7e3cbac1713e68c8850f6c",
+    "packages": [
+        {
+>>>>>>> e2927c017d800ba2c0919a3f2a14f7de18623268
             "name": "brick/math",
             "version": "0.14.8",
             "source": {
@@ -267,6 +273,7 @@
             "time": "2024-02-09T16:56:22+00:00"
         },
         {
+<<<<<<< HEAD
             "name": "dasprid/enum",
             "version": "1.0.7",
             "source": {
@@ -317,6 +324,8 @@
             "time": "2025-09-16T12:23:56+00:00"
         },
         {
+=======
+>>>>>>> e2927c017d800ba2c0919a3f2a14f7de18623268
             "name": "dflydev/dot-access-data",
             "version": "v3.0.3",
             "source": {
@@ -559,6 +568,7 @@
             "time": "2024-02-05T11:56:58+00:00"
         },
         {
+<<<<<<< HEAD
             "name": "dompdf/dompdf",
             "version": "v3.1.5",
             "source": {
@@ -714,6 +724,8 @@
             "time": "2026-01-02T16:01:13+00:00"
         },
         {
+=======
+>>>>>>> e2927c017d800ba2c0919a3f2a14f7de18623268
             "name": "dragonmantank/cron-expression",
             "version": "v3.6.0",
             "source": {
@@ -845,6 +857,7 @@
             "time": "2025-03-06T22:45:56+00:00"
         },
         {
+<<<<<<< HEAD
             "name": "endroid/qr-code",
             "version": "5.0.0",
             "source": {
@@ -920,6 +933,8 @@
             "time": "2023-10-02T22:25:20+00:00"
         },
         {
+=======
+>>>>>>> e2927c017d800ba2c0919a3f2a14f7de18623268
             "name": "fruitcake/php-cors",
             "version": "v1.4.0",
             "source": {
@@ -2432,6 +2447,7 @@
             "time": "2026-03-08T20:05:35+00:00"
         },
         {
+<<<<<<< HEAD
             "name": "masterminds/html5",
             "version": "2.10.0",
             "source": {
@@ -2499,6 +2515,8 @@
             "time": "2025-07-25T09:04:22+00:00"
         },
         {
+=======
+>>>>>>> e2927c017d800ba2c0919a3f2a14f7de18623268
             "name": "monolog/monolog",
             "version": "3.10.0",
             "source": {
@@ -3774,6 +3792,7 @@
             "time": "2025-12-14T04:43:48+00:00"
         },
         {
+<<<<<<< HEAD
             "name": "sabberworm/php-css-parser",
             "version": "v9.3.0",
             "source": {
@@ -3854,6 +3873,8 @@
             "time": "2026-03-03T17:31:43+00:00"
         },
         {
+=======
+>>>>>>> e2927c017d800ba2c0919a3f2a14f7de18623268
             "name": "symfony/clock",
             "version": "v7.4.0",
             "source": {
@@ -6355,6 +6376,7 @@
             "time": "2026-02-15T10:53:20+00:00"
         },
         {
+<<<<<<< HEAD
             "name": "thecodingmachine/safe",
             "version": "v3.4.0",
             "source": {
@@ -6498,6 +6520,8 @@
             "time": "2026-02-04T18:08:13+00:00"
         },
         {
+=======
+>>>>>>> e2927c017d800ba2c0919a3f2a14f7de18623268
             "name": "tijsverkoyen/css-to-inline-styles",
             "version": "v2.4.0",
             "source": {

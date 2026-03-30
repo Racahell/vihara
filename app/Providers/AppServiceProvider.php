@@ -2,9 +2,12 @@
 
 namespace App\Providers;
 
+<<<<<<< HEAD
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\View;
 use Illuminate\Pagination\Paginator;
+=======
+>>>>>>> e2927c017d800ba2c0919a3f2a14f7de18623268
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -22,6 +25,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+<<<<<<< HEAD
         Paginator::defaultView('components.pagination');
         Paginator::defaultSimpleView('components.pagination');
 
@@ -66,3 +70,8 @@ class AppServiceProvider extends ServiceProvider
     }
 }
 
+=======
+        //
+    }
+}
+>>>>>>> e2927c017d800ba2c0919a3f2a14f7de18623268

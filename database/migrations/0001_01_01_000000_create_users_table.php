@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+<<<<<<< HEAD
             $table->string('username')->nullable()->unique();
             $table->string('email')->unique();
             $table->string('phone', 32)->nullable();
@@ -27,6 +28,13 @@ return new class extends Migration
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();
+=======
+            $table->string('email')->unique();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('password');
+            $table->rememberToken();
+            $table->timestamps();
+>>>>>>> e2927c017d800ba2c0919a3f2a14f7de18623268
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

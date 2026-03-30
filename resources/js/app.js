@@ -1,4 +1,5 @@
 import './bootstrap';
+<<<<<<< HEAD
 import Chart from 'chart.js/auto';
 import { Html5Qrcode } from 'html5-qrcode';
 import QRCode from 'qrcode';
@@ -193,3 +194,5 @@ document.addEventListener('DOMContentLoaded', () => {
     initQrScanner();
     initModalHandlers();
 });
+=======
+>>>>>>> e2927c017d800ba2c0919a3f2a14f7de18623268
