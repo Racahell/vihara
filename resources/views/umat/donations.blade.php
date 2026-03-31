@@ -89,6 +89,7 @@
             @empty
                 <p class="muted">Belum ada data donasi.</p>
             @endforelse
+            {{ $monitorDonations->links() }}
         </div>
     @endif
     <div class="card">
@@ -97,8 +98,14 @@
             <div style="padding:10px;border:1px solid #edf2f4;border-radius:10px;margin-bottom:8px;">
                 <strong>Rp {{ number_format($donation->amount, 0, ',', '.') }}</strong>
                 <div class="muted">{{ strtoupper($donation->payment_status) }} / {{ strtoupper($donation->verification_status) }}</div>
+                @if(strtolower((string) $donation->payment_status) === 'pending' && strtolower((string) $donation->verification_status) === 'pending')
+                    <div style="margin-top:8px;">
+                        <a class="btn btn-secondary" href="{{ route('umat.donations.pay', $donation) }}">Bayar</a>
+                    </div>
+                @endif
             </div>
         @endforeach
+        {{ $myDonations->links() }}
     </div>
 </div>
 @endsection

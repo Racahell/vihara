@@ -6,7 +6,7 @@
     <p class="muted">Atur identitas website, branding, kontak, dan konten halaman guest.</p>
 </div>
 
-<div class="card" style="margin-top:14px;">
+<div class="card" style="margin-top:14px;" id="website-settings-card">
     <div class="tabs website-settings-tabs" data-tabs-wrapper>
         <button class="tab active" type="button" data-tab-btn="general">Umum</button>
         <button class="tab" type="button" data-tab-btn="branding">Branding</button>
@@ -55,22 +55,20 @@
                 <div class="card">
                     <label for="website_logo">Logo Website</label>
                     <input id="website_logo" type="file" name="website_logo" accept="image/png,image/jpeg,image/webp,image/svg+xml">
+                    <input id="website_logo_cropped" type="hidden" name="website_logo_cropped" value="">
                     <p class="muted" style="margin-top:8px;">Format: PNG/JPG/WEBP/SVG (maks 2MB).</p>
-                    @if(!empty($settings['website_logo_path']))
-                        <div style="margin-top:10px;">
-                            <img src="{{ asset('storage/' . $settings['website_logo_path']) }}" alt="Logo website" class="website-logo-preview">
-                        </div>
-                    @endif
+                    <div style="margin-top:10px;">
+                        <img id="website_logo_preview" src="{{ !empty($settings['website_logo_path']) ? asset('storage/' . $settings['website_logo_path']) : '' }}" alt="Logo website" class="website-logo-preview" @if(empty($settings['website_logo_path'])) style="display:none;" @endif>
+                    </div>
                 </div>
                 <div class="card">
                     <label for="website_favicon">Favicon</label>
-                    <input id="website_favicon" type="file" name="website_favicon" accept="image/png,image/x-icon,image/svg+xml">
-                    <p class="muted" style="margin-top:8px;">Format: PNG/ICO/SVG (maks 1MB).</p>
-                    @if(!empty($settings['website_favicon_path']))
-                        <div style="margin-top:10px;">
-                            <img src="{{ asset('storage/' . $settings['website_favicon_path']) }}" alt="Favicon website" class="website-favicon-preview">
-                        </div>
-                    @endif
+                    <input id="website_favicon" type="file" name="website_favicon" accept="image/png,image/jpeg,image/jpg,image/x-icon,image/svg+xml">
+                    <input id="website_favicon_cropped" type="hidden" name="website_favicon_cropped" value="">
+                    <p class="muted" style="margin-top:8px;">Format: PNG/JPG/JPEG/ICO/SVG (maks 1MB).</p>
+                    <div style="margin-top:10px;">
+                        <img id="website_favicon_preview" src="{{ !empty($settings['website_favicon_path']) ? asset('storage/' . $settings['website_favicon_path']) : '' }}" alt="Favicon website" class="website-favicon-preview" @if(empty($settings['website_favicon_path'])) style="display:none;" @endif>
+                    </div>
                 </div>
             </div>
         </section>
@@ -108,6 +106,20 @@
                 <label for="company_description">Info Singkat</label>
                 <textarea id="company_description" name="company_description" rows="3">{{ old('company_description', $settings['company_description']) }}</textarea>
             </div>
+            <div class="grid-2">
+                <div>
+                    <label for="donation_bank_name">Bank Donasi</label>
+                    <input id="donation_bank_name" type="text" name="donation_bank_name" value="{{ old('donation_bank_name', $settings['donation_bank_name']) }}" placeholder="Contoh: BCA">
+                </div>
+                <div>
+                    <label for="donation_account_number">No. Rekening Donasi</label>
+                    <input id="donation_account_number" type="text" name="donation_account_number" value="{{ old('donation_account_number', $settings['donation_account_number']) }}" placeholder="Contoh: 1234567890">
+                </div>
+            </div>
+            <div>
+                <label for="donation_account_holder">Atas Nama Rekening Donasi</label>
+                <input id="donation_account_holder" type="text" name="donation_account_holder" value="{{ old('donation_account_holder', $settings['donation_account_holder']) }}" placeholder="Contoh: Yayasan Vihara">
+            </div>
         </section>
 
         <section class="tab-panel" data-tab-panel="guest">
@@ -144,4 +156,152 @@
         <button class="btn btn-primary" type="submit">Simpan Perubahan</button>
     </form>
 </div>
+
+<div class="modal" id="branding-crop-modal" aria-hidden="true">
+    <div class="modal-backdrop" data-branding-crop-cancel></div>
+    <div class="modal-dialog website-crop-modal-dialog">
+        <div class="modal-header">
+            <strong id="branding-crop-title">Crop Gambar</strong>
+            <button type="button" class="btn btn-secondary" data-branding-crop-cancel>Tutup</button>
+        </div>
+        <div class="modal-body">
+            <div class="website-crop-wrap">
+                <img id="branding-crop-image" alt="Preview crop" style="max-width:100%;display:block;">
+            </div>
+            <div class="modal-footer-actions">
+                <button type="button" class="btn btn-secondary" data-branding-crop-cancel>Batal</button>
+                <button type="button" class="btn btn-primary" id="branding-crop-apply">Pakai Hasil Crop</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const card = document.getElementById('website-settings-card');
+    if (!card) return;
+
+    const buttons = card.querySelectorAll('[data-tab-btn]');
+    const panels = card.querySelectorAll('[data-tab-panel]');
+    if (!buttons.length || !panels.length) return;
+
+    const showTab = function (tabName) {
+        buttons.forEach(function (btn) {
+            btn.classList.toggle('active', btn.dataset.tabBtn === tabName);
+        });
+        panels.forEach(function (panel) {
+            panel.classList.toggle('is-active', panel.dataset.tabPanel === tabName);
+        });
+    };
+
+    buttons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            showTab(btn.dataset.tabBtn);
+        });
+    });
+
+    const activeButton = card.querySelector('[data-tab-btn].active');
+    showTab(activeButton ? activeButton.dataset.tabBtn : 'general');
+
+    const logoInput = document.getElementById('website_logo');
+    const faviconInput = document.getElementById('website_favicon');
+    const logoHidden = document.getElementById('website_logo_cropped');
+    const faviconHidden = document.getElementById('website_favicon_cropped');
+    const logoPreview = document.getElementById('website_logo_preview');
+    const faviconPreview = document.getElementById('website_favicon_preview');
+    const modal = document.getElementById('branding-crop-modal');
+    const modalImage = document.getElementById('branding-crop-image');
+    const modalTitle = document.getElementById('branding-crop-title');
+    const applyBtn = document.getElementById('branding-crop-apply');
+    const cancelButtons = document.querySelectorAll('[data-branding-crop-cancel]');
+
+    if (!logoInput || !faviconInput || !logoHidden || !faviconHidden || !modal || !modalImage || !applyBtn || typeof window.Cropper === 'undefined') return;
+
+    let cropper = null;
+    let currentTarget = null;
+
+    const openModal = function () {
+        modal.classList.add('is-open');
+        modal.setAttribute('aria-hidden', 'false');
+    };
+
+    const closeModal = function () {
+        modal.classList.remove('is-open');
+        modal.setAttribute('aria-hidden', 'true');
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+        modalImage.src = '';
+        currentTarget = null;
+    };
+
+    const openCropper = function (file, target) {
+        if (!file || !file.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = function () {
+            currentTarget = target;
+            modalTitle.textContent = target === 'favicon' ? 'Crop Favicon' : 'Crop Logo Website';
+            modalImage.src = String(reader.result || '');
+            openModal();
+            if (cropper) cropper.destroy();
+            cropper = new window.Cropper(modalImage, {
+                aspectRatio: target === 'favicon' ? 1 : NaN,
+                viewMode: 1,
+                autoCropArea: 1,
+                dragMode: 'move',
+                background: false,
+                movable: true,
+                scalable: true,
+                zoomable: true,
+            });
+        };
+        reader.readAsDataURL(file);
+    };
+
+    logoInput.addEventListener('change', function (event) {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+        openCropper(file, 'logo');
+    });
+
+    faviconInput.addEventListener('change', function (event) {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+        openCropper(file, 'favicon');
+    });
+
+    applyBtn.addEventListener('click', function () {
+        if (!cropper || !currentTarget) return;
+        const canvas = cropper.getCroppedCanvas({
+            width: currentTarget === 'favicon' ? 512 : 1200,
+            height: currentTarget === 'favicon' ? 512 : 600,
+            imageSmoothingQuality: 'high',
+        });
+        const dataUrl = canvas.toDataURL(currentTarget === 'favicon' ? 'image/png' : 'image/jpeg', 0.92);
+
+        if (currentTarget === 'logo') {
+            logoHidden.value = dataUrl;
+            logoInput.value = '';
+            if (logoPreview) {
+                logoPreview.src = dataUrl;
+                logoPreview.style.display = 'block';
+            }
+        } else {
+            faviconHidden.value = dataUrl;
+            faviconInput.value = '';
+            if (faviconPreview) {
+                faviconPreview.src = dataUrl;
+                faviconPreview.style.display = 'block';
+            }
+        }
+
+        closeModal();
+    });
+
+    cancelButtons.forEach(function (btn) {
+        btn.addEventListener('click', closeModal);
+    });
+});
+</script>
 @endsection

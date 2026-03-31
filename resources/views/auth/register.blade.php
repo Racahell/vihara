@@ -19,6 +19,18 @@
         <input id="phone" type="text" name="phone" value="{{ old('phone') }}">
     </div>
     <div>
+        <label for="gender">Jenis Kelamin</label>
+        <select id="gender" name="gender" required>
+            <option value="">Pilih jenis kelamin</option>
+            <option value="L" @selected(old('gender') === 'L')>Laki-laki</option>
+            <option value="P" @selected(old('gender') === 'P')>Perempuan</option>
+        </select>
+    </div>
+    <div>
+        <label for="address">Alamat</label>
+        <input id="address" type="text" name="address" value="{{ old('address') }}" required>
+    </div>
+    <div>
         <label for="password">Password</label>
         <input id="password" type="password" name="password" required>
     </div>

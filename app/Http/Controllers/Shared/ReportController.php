@@ -15,6 +15,7 @@ class ReportController extends Controller
     public function donation(Request $request)
     {
         $donations = $this->buildQuery($request)->latest('donated_at')->get();
+        $approvedTotal = (int) $donations->where('verification_status', 'approved')->sum('amount');
 
         $categoryTotals = $donations->groupBy(fn ($item) => $item->category?->name ?? 'Tanpa Kategori')
             ->map(fn ($items) => $items->sum('amount'));
@@ -22,8 +23,8 @@ class ReportController extends Controller
         return view('reports.donations', [
             'donations' => $donations,
             'summary' => [
-                'total_masuk' => (int) $donations->sum('amount'),
-                'total_terverifikasi' => (int) $donations->where('verification_status', 'approved')->sum('amount'),
+                'total_masuk' => $approvedTotal,
+                'total_terverifikasi' => $approvedTotal,
                 'total_pending' => (int) $donations->where('verification_status', 'pending')->sum('amount'),
                 'total_ditolak' => (int) $donations->where('verification_status', 'rejected')->sum('amount'),
             ],
@@ -37,12 +38,13 @@ class ReportController extends Controller
     public function donationPdf(Request $request)
     {
         $donations = $this->buildQuery($request)->latest('donated_at')->get();
+        $approvedTotal = (int) $donations->where('verification_status', 'approved')->sum('amount');
 
         $pdf = Pdf::loadView('reports.pdf.donations-official', [
             'donations' => $donations,
             'summary' => [
-                'total_masuk' => (int) $donations->sum('amount'),
-                'total_terverifikasi' => (int) $donations->where('verification_status', 'approved')->sum('amount'),
+                'total_masuk' => $approvedTotal,
+                'total_terverifikasi' => $approvedTotal,
                 'total_pending' => (int) $donations->where('verification_status', 'pending')->sum('amount'),
             ],
             'printedAt' => now(),
@@ -58,6 +60,7 @@ class ReportController extends Controller
     public function donationExcel(Request $request)
     {
         $donations = $this->buildQuery($request)->latest('donated_at')->get();
+        $approvedTotal = (int) $donations->where('verification_status', 'approved')->sum('amount');
 
         $lines = [];
         $lines[] = [
@@ -79,7 +82,7 @@ class ReportController extends Controller
             ];
         }
 
-        $lines[] = ['', '', '', '', '', 'TOTAL', $donations->sum('amount'), '', '', ''];
+        $lines[] = ['', '', '', '', '', 'TOTAL (APPROVED)', $approvedTotal, '', '', ''];
 
         $csv = collect($lines)->map(function (array $row): string {
             return '"' . collect($row)->map(function ($value): string {
@@ -95,12 +98,13 @@ class ReportController extends Controller
     public function donationPrint(Request $request)
     {
         $donations = $this->buildQuery($request)->latest('donated_at')->get();
+        $approvedTotal = (int) $donations->where('verification_status', 'approved')->sum('amount');
 
         return view('reports.print.donations', [
             'donations' => $donations,
             'summary' => [
-                'total_masuk' => (int) $donations->sum('amount'),
-                'total_terverifikasi' => (int) $donations->where('verification_status', 'approved')->sum('amount'),
+                'total_masuk' => $approvedTotal,
+                'total_terverifikasi' => $approvedTotal,
                 'total_pending' => (int) $donations->where('verification_status', 'pending')->sum('amount'),
             ],
             'printedAt' => now(),

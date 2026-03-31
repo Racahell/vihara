@@ -1,5 +1,5 @@
 @php
-    $siteName = $websiteSettings['website_name'] ?? 'Portal Vihara';
+    $siteName = $websiteSettings['website_name'] ?? config('app.name', 'Website');
     $companyDesc = $websiteSettings['company_description'] ?? 'Ruang informasi kegiatan dan layanan umat.';
     $contactPhone = $websiteSettings['contact_phone'] ?? null;
     $contactEmail = $websiteSettings['contact_email'] ?? null;

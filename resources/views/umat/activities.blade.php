@@ -1,6 +1,10 @@
 @extends('layouts.app')
-@section('title', 'Kegiatan Umat')
+@section('title', ($favoritesOnly ?? false) ? 'Favorit Kegiatan' : 'Kegiatan Umat')
 @section('content')
+<div class="card page-head">
+    <h2>{{ ($favoritesOnly ?? false) ? 'Favorit Kegiatan Saya' : 'Kegiatan Umat' }}</h2>
+    <p class="muted">{{ ($favoritesOnly ?? false) ? 'Daftar kegiatan yang sudah kamu tandai sebagai favorit.' : 'Pilih kegiatan aktif yang ingin kamu ikuti.' }}</p>
+</div>
 <div class="cards">
     @foreach($activities as $activity)
         <div class="card">

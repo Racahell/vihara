@@ -29,6 +29,9 @@
                 </td>
                 <td>
                     <div><strong>Nama Peserta:</strong> {{ $registration->participant_name }}</div>
+                    <div><strong>Usia:</strong> {{ $registration->participant_age ?? '-' }}</div>
+                    <div><strong>Jenis Kelamin:</strong> {{ $registration->participant_gender === 'L' ? 'Laki-laki' : ($registration->participant_gender === 'P' ? 'Perempuan' : '-') }}</div>
+                    <div><strong>Alamat:</strong> {{ $registration->participant_address ?? '-' }}</div>
                     <div><strong>No HP:</strong> {{ $registration->participant_phone ?: '-' }}</div>
                     <div><strong>Kegiatan:</strong> {{ $registration->activity->title ?? '-' }}</div>
                     <div><strong>Lokasi:</strong> {{ $registration->activity->location ?? 'Vihara' }}</div>
@@ -41,4 +44,3 @@
     </div>
 </body>
 </html>
-

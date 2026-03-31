@@ -52,4 +52,10 @@ return [
         'offline_enabled' => env('CAPTCHA_OFFLINE_ENABLED', true),
     ],
 
+    'bank_mutation' => [
+        'provider' => env('BANK_MUTATION_PROVIDER', 'null'),
+        'disk' => env('BANK_MUTATION_DISK', 'local'),
+        'path' => env('BANK_MUTATION_PATH', 'bank-mutations/incoming.json'),
+        'match_window_hours' => env('BANK_MUTATION_MATCH_WINDOW_HOURS', 48),
+    ],
 ];

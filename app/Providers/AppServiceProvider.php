@@ -2,7 +2,11 @@
 
 namespace App\Providers;
 
+use App\Services\BankMutation\BankMutationProviderInterface;
+use App\Services\BankMutation\JsonFileBankMutationProvider;
+use App\Services\BankMutation\NullBankMutationProvider;
 use App\Models\WebsiteSetting;
+use Illuminate\Auth\Middleware\RedirectIfAuthenticated;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\View;
@@ -16,7 +20,17 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(BankMutationProviderInterface::class, function () {
+            $provider = (string) config('services.bank_mutation.provider', 'null');
+            if ($provider === 'json_file') {
+                return new JsonFileBankMutationProvider(
+                    (string) config('services.bank_mutation.disk', 'local'),
+                    (string) config('services.bank_mutation.path', 'bank-mutations/incoming.json')
+                );
+            }
+
+            return new NullBankMutationProvider();
+        });
     }
 
     /**
@@ -26,9 +40,27 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::defaultView('components.pagination');
         Paginator::defaultSimpleView('components.pagination');
+        RedirectIfAuthenticated::redirectUsing(function () {
+            $user = auth()->user();
+
+            if ($user?->hasRole('umat') && Route::has('umat.dashboard')) {
+                return route('umat.dashboard');
+            }
+
+            if ($user?->hasPermission('dashboard.view') && Route::has('dashboard')) {
+                return route('dashboard');
+            }
+
+            if (Route::has('umat.dashboard')) {
+                return route('umat.dashboard');
+            }
+
+            return Route::has('guest.home') ? route('guest.home') : '/';
+        });
 
         View::composer('*', function ($view) {
             static $siteName = null;
+            static $sharedWebsiteSettings = null;
             if ($siteName === null) {
                 try {
                     $siteName = WebsiteSetting::query()
@@ -36,6 +68,27 @@ class AppServiceProvider extends ServiceProvider
                         ->value('value') ?: config('app.name');
                 } catch (QueryException $e) {
                     $siteName = config('app.name');
+                }
+            }
+
+            if ($sharedWebsiteSettings === null) {
+                $defaults = [
+                    'website_name' => $siteName ?: config('app.name'),
+                    'website_logo_path' => '',
+                    'website_favicon_path' => '',
+                    'company_description' => 'Ruang informasi kegiatan dan layanan umat.',
+                    'contact_phone' => '',
+                    'contact_email' => '',
+                ];
+
+                try {
+                    $fromDb = WebsiteSetting::query()
+                        ->whereIn('key', array_keys($defaults))
+                        ->pluck('value', 'key')
+                        ->toArray();
+                    $sharedWebsiteSettings = array_merge($defaults, $fromDb);
+                } catch (QueryException $e) {
+                    $sharedWebsiteSettings = $defaults;
                 }
             }
 
@@ -104,7 +157,7 @@ class AppServiceProvider extends ServiceProvider
             $view->with('currentRoleSlug', $roleSlug);
             $view->with('sidebarMenuGroups', $menuGroups);
             $view->with('siteName', $siteName);
+            $view->with('websiteSettings', $sharedWebsiteSettings);
         });
     }
 }
-

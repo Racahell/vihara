@@ -1,26 +1,39 @@
 @extends('layouts.app')
 @section('title', 'Manajemen Pengguna')
 @section('content')
+@php
+    $tab = $tab ?? 'active';
+@endphp
 <div class="card page-head">
     <h2>Manajemen Pengguna</h2>
     <p class="muted">Kelola akun, role, dan status pengguna.</p>
-    @if($canCreateUser ?? false)
-        <div style="margin-top:12px;">
-            <button type="button" class="btn btn-primary" data-modal-open="create-user-modal">Tambah User</button>
-        </div>
-    @endif
+</div>
+
+<div class="card" style="margin-top:16px;">
+    <div class="tabs">
+        <a href="{{ route('admin.users.index', ['tab' => 'active']) }}" class="tab {{ $tab === 'active' ? 'active' : '' }}">User Aktif</a>
+        @if($canViewDeleted ?? false)
+            <a href="{{ route('admin.users.index', ['tab' => 'deleted']) }}" class="tab {{ $tab === 'deleted' ? 'active' : '' }}">Deleted</a>
+        @endif
+    </div>
 </div>
 
 <div class="card" style="margin-top:16px;">
     <form method="GET" class="table-toolbar" style="margin:0;">
-        <div class="table-length">
-            <label for="perPage">Tampilkan</label>
-            <select id="perPage" name="per_page" onchange="this.form.submit()">
-                @foreach([10,25,50,100] as $size)
-                    <option value="{{ $size }}" @selected($perPage === $size)>{{ $size }}</option>
-                @endforeach
-            </select>
-            <span>data</span>
+        <input type="hidden" name="tab" value="{{ $tab }}">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <div class="table-length">
+                <label for="perPage">Tampilkan</label>
+                <select id="perPage" name="per_page" onchange="this.form.submit()">
+                    @foreach([10,25,50,100] as $size)
+                        <option value="{{ $size }}" @selected($perPage === $size)>{{ $size }}</option>
+                    @endforeach
+                </select>
+                <span>data</span>
+            </div>
+            @if(($canCreateUser ?? false) && $tab === 'active')
+                <button type="button" class="btn btn-primary" data-modal-open="create-user-modal">Tambah User</button>
+            @endif
         </div>
 
         <div class="table-search">
@@ -30,46 +43,91 @@
     </form>
 </div>
 
-<div class="table-wrap" style="margin-top:12px;">
-<table class="users-table">
-    <thead>
-    <tr>
-        <th style="width:22%;">Nama</th>
-        <th style="width:30%;">Email</th>
-        <th style="width:16%;">Role</th>
-        <th style="width:14%;">Status</th>
-        <th style="width:18%;">Aksi</th>
-    </tr>
-    </thead>
-    <tbody>
-    @forelse($users as $user)
-        @php
-            $roleSlug = $user->roles->pluck('slug')->first() ?? 'umat';
-            $roleLabel = strtoupper($roleSlug);
-        @endphp
+@if($tab === 'deleted' && ($canViewDeleted ?? false))
+    <div class="table-wrap" style="margin-top:12px;">
+    <table class="users-table">
+        <thead>
         <tr>
-            <td>{{ $user->name }}</td>
-            <td>{{ $user->email }}</td>
-            <td><span class="badge role-{{ $roleSlug }}">{{ $roleLabel }}</span></td>
-            <td>
-                @if($user->is_active)
-                    <span class="badge status-active">Aktif</span>
-                @else
-                    <span class="badge status-inactive">Nonaktif</span>
-                @endif
-            </td>
-            <td>
-                <button type="button" class="btn btn-outline" data-modal-open="user-modal-{{ $user->id }}">Detail</button>
-            </td>
+            <th style="width:22%;">Nama</th>
+            <th style="width:30%;">Email</th>
+            <th style="width:16%;">Role</th>
+            <th style="width:14%;">Dihapus Pada</th>
+            <th style="width:18%;">Aksi</th>
         </tr>
-    @empty
-        <tr><td colspan="5">Data pengguna tidak ditemukan.</td></tr>
-    @endforelse
-    </tbody>
-</table>
-</div>
-
-{{ $users->links() }}
+        </thead>
+        <tbody>
+        @forelse($deletedUsers as $user)
+            @php
+                $roleSlug = $user->roles->pluck('slug')->first() ?? 'umat';
+                $roleLabel = strtoupper($roleSlug);
+            @endphp
+            <tr>
+                <td>{{ $user->name }}</td>
+                <td>{{ $user->email }}</td>
+                <td><span class="badge role-{{ $roleSlug }}">{{ $roleLabel }}</span></td>
+                <td>{{ $user->deleted_at?->format('d-m-Y H:i:s') ?? '-' }}</td>
+                <td>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                        <form action="{{ route('admin.users.restore', $user->id) }}" method="POST">
+                            @csrf
+                            <button class="btn btn-secondary" type="submit">Restore</button>
+                        </form>
+                        <form action="{{ route('admin.users.force-delete', $user->id) }}" method="POST" onsubmit="return confirm('Yakin hapus permanen user ini? Tindakan ini tidak bisa dibatalkan.');">
+                            @csrf
+                            @method('DELETE')
+                            <button class="btn btn-danger" type="submit">Delete Permanent</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+        @empty
+            <tr><td colspan="5">Belum ada user yang dihapus.</td></tr>
+        @endforelse
+        </tbody>
+    </table>
+    </div>
+    {{ $deletedUsers?->appends(['tab' => 'deleted'])->links() }}
+@else
+    <div class="table-wrap" style="margin-top:12px;">
+    <table class="users-table">
+        <thead>
+        <tr>
+            <th style="width:22%;">Nama</th>
+            <th style="width:30%;">Email</th>
+            <th style="width:16%;">Role</th>
+            <th style="width:14%;">Status</th>
+            <th style="width:18%;">Aksi</th>
+        </tr>
+        </thead>
+        <tbody>
+        @forelse($users as $user)
+            @php
+                $roleSlug = $user->roles->pluck('slug')->first() ?? 'umat';
+                $roleLabel = strtoupper($roleSlug);
+            @endphp
+            <tr>
+                <td>{{ $user->name }}</td>
+                <td>{{ $user->email }}</td>
+                <td><span class="badge role-{{ $roleSlug }}">{{ $roleLabel }}</span></td>
+                <td>
+                    @if($user->is_active)
+                        <span class="badge status-active">Aktif</span>
+                    @else
+                        <span class="badge status-inactive">Nonaktif</span>
+                    @endif
+                </td>
+                <td>
+                    <button type="button" class="btn btn-outline" data-modal-open="user-modal-{{ $user->id }}">Detail</button>
+                </td>
+            </tr>
+        @empty
+            <tr><td colspan="5">Data pengguna tidak ditemukan.</td></tr>
+        @endforelse
+        </tbody>
+    </table>
+    </div>
+    {{ $users->appends(['tab' => 'active'])->links() }}
+@endif
 
 @foreach($users as $user)
     @php

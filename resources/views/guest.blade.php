@@ -13,24 +13,29 @@
 <div class="guest-page">
     <header class="guest-header">
         <div class="guest-container guest-nav">
-            <div class="guest-brand-wrap">
+            <a href="#beranda" class="guest-brand" aria-label="{{ $websiteSettings['website_name'] }}">
                 @if(!empty($websiteSettings['website_logo_path']))
                     <img src="{{ asset('storage/' . $websiteSettings['website_logo_path']) }}" alt="Logo {{ $websiteSettings['website_name'] }}" class="guest-logo-image">
                 @else
-                    <div class="auth-logo-mark" aria-hidden="true">
+                    <span class="guest-brand-logo" aria-hidden="true">
                         <svg viewBox="0 0 64 64" role="img">
-                            <circle cx="32" cy="32" r="30" fill="#ecfdf5" stroke="#99f6e4" stroke-width="2"/>
-                            <path d="M13 39c6 0 10-3 19-3s13 3 19 3" fill="none" stroke="#0f766e" stroke-width="3" stroke-linecap="round"/>
-                            <path d="M24 30l8-12 8 12" fill="none" stroke="#ec4899" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M29 30h6" fill="none" stroke="#ec4899" stroke-width="3" stroke-linecap="round"/>
+                            <defs>
+                                <linearGradient id="viharaLogoGrad" x1="0" x2="1" y1="0" y2="1">
+                                    <stop offset="0%" stop-color="#14b8a6"/>
+                                    <stop offset="100%" stop-color="#0f766e"/>
+                                </linearGradient>
+                            </defs>
+                            <rect x="2" y="2" width="60" height="60" rx="18" fill="url(#viharaLogoGrad)"/>
+                            <path d="M13 41c7-8 14-12 23-12s17 4 25 12H13z" fill="#e6fffa"/>
+                            <path d="M32 14c3 4 5 8 5 12a5 5 0 1 1-10 0c0-4 2-8 5-12z" fill="#ffffff"/>
                         </svg>
-                    </div>
+                    </span>
                 @endif
-                <div class="guest-brand">
+                <span class="guest-brand-copy">
                     <strong>{{ $websiteSettings['website_name'] }}</strong>
                     <span>Perahu &amp; Teratai</span>
-                </div>
-            </div>
+                </span>
+            </a>
             <nav class="guest-links">
                 <a href="#beranda">Beranda</a>
                 <a href="#tentang">Tentang Vihara</a>
@@ -101,15 +106,26 @@
                 <h3>Lokasi Vihara</h3>
                 <p><strong>{{ $websiteSettings['vihara_location_name'] }}</strong></p>
                 <p class="muted">{{ $websiteSettings['vihara_location_address'] }}</p>
+                @php
+                    $mapAddress = (string) ($websiteSettings['vihara_location_address'] ?? '');
+                    $mapUrl = trim((string) ($websiteSettings['vihara_map_url'] ?? ''));
+                    if ($mapUrl !== '' && preg_match('/[?&](?:q|query)=([^&]+)/i', $mapUrl, $matches) === 1) {
+                        $parsedAddress = urldecode($matches[1] ?? '');
+                        if ($parsedAddress !== '') {
+                            $mapAddress = $parsedAddress;
+                        }
+                    }
+                    $mapEmbedUrl = 'https://www.google.com/maps?q=' . urlencode($mapAddress) . '&output=embed';
+                @endphp
                 <div class="guest-map-frame">
                     <iframe
                         title="Lokasi Vihara"
-                        src="{{ 'https://www.google.com/maps?q=' . urlencode($websiteSettings['vihara_location_address']) . '&output=embed' }}"
+                        src="{{ $mapEmbedUrl }}"
                         loading="lazy"
                         referrerpolicy="no-referrer-when-downgrade"></iframe>
                 </div>
                 <div style="margin-top:10px;">
-                    <a class="btn btn-secondary" href="{{ $websiteSettings['vihara_map_url'] }}" target="_blank" rel="noopener">Buka di Google Maps</a>
+                    <a class="btn btn-secondary" href="{{ $mapUrl !== '' ? $mapUrl : $mapEmbedUrl }}" target="_blank" rel="noopener">Buka di Google Maps</a>
                 </div>
             </div>
         </div>

@@ -18,6 +18,9 @@ class User extends Authenticatable
         'username',
         'email',
         'phone',
+        'gender',
+        'address',
+        'profile_photo_path',
         'password',
         'is_active',
         'activated_at',
@@ -26,7 +29,6 @@ class User extends Authenticatable
         'last_login_user_agent',
         'registration_ip',
     ];
-
     protected $hidden = [
         'password',
         'remember_token',
@@ -57,7 +59,6 @@ class User extends Authenticatable
     {
         return $this->roles->whereIn('slug', $roles)->isNotEmpty();
     }
-
     public function hasPermission(string $permission): bool
     {
         if ($this->hasRole('superadmin')) {

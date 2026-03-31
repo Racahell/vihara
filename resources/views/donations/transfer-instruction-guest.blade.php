@@ -39,10 +39,16 @@
                         </div>
                     @else
                         <h3>Pembayaran QRIS</h3>
-                        <p class="muted">Scan QR berikut menggunakan aplikasi pembayaran Anda, lalu lakukan pembayaran sesuai nominal donasi.</p>
+                        <p class="muted">Scan QR berikut untuk bayar otomatis sesuai nominal donasi.</p>
+                        <p class="muted" style="margin-top:6px;"><strong>Catatan:</strong> Transaksi QRIS otomatis gagal jika tidak dibayar dalam 15 menit.</p>
+                        @if(!empty($qrisExpiredAt))
+                            <div class="muted" style="margin-top:8px;"><strong>Berlaku sampai:</strong> {{ \Illuminate\Support\Carbon::parse($qrisExpiredAt)->format('d-m-Y H:i:s') }}</div>
+                        @endif
                     @endif
                     <img
-                        @if($qrDataUri)
+                        @if(!empty($qrisImage))
+                            src="{{ $qrisImage }}"
+                        @elseif($qrDataUri)
                             src="{{ $qrDataUri }}"
                         @else
                             data-qr-payload="{{ $qrPayload }}"
@@ -52,18 +58,20 @@
                 </div>
             </div>
 
-            <div class="card" style="margin-top:12px;">
-                <h3>Upload Bukti Transfer (Wajib)</h3>
-                <form action="{{ route('guest.donations.upload-proof', $donation) }}" method="POST" enctype="multipart/form-data" class="form-grid">
-                    @csrf
-                    <input type="hidden" name="verification_key" value="{{ $verificationKey }}">
-                    <div>
-                        <label for="guest-proof-file">File Bukti (jpg/jpeg/png/pdf)</label>
-                        <input id="guest-proof-file" type="file" name="transfer_proof" accept=".jpg,.jpeg,.png,.pdf" required>
-                    </div>
-                    <button type="submit" class="btn btn-green">Saya Sudah Transfer & Upload Bukti</button>
-                </form>
-            </div>
+            @if($transferChannel === 'bank_transfer')
+                <div class="card" style="margin-top:12px;">
+                    <h3>Upload Bukti Transfer (Wajib)</h3>
+                    <form action="{{ route('guest.donations.upload-proof', $donation) }}" method="POST" enctype="multipart/form-data" class="form-grid">
+                        @csrf
+                        <input type="hidden" name="verification_key" value="{{ $verificationKey }}">
+                        <div>
+                            <label for="guest-proof-file">File Bukti (jpg/jpeg/png/pdf)</label>
+                            <input id="guest-proof-file" type="file" name="transfer_proof" accept=".jpg,.jpeg,.png,.pdf" required>
+                        </div>
+                        <button type="submit" class="btn btn-green btn-upload-proof">Saya Sudah Transfer & Upload Bukti</button>
+                    </form>
+                </div>
+            @endif
 
             <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">
                 <a href="{{ route('guest.home') }}" class="btn btn-secondary">Kembali ke Guest</a>

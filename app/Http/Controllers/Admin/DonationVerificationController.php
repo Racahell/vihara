@@ -4,10 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Donation;
-use App\Models\DonationVerificationLog;
 use App\Services\AuditLogService;
+use App\Services\DonationSettlementService;
 use App\Services\DiscordWebhookService;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -20,7 +19,13 @@ class DonationVerificationController extends Controller
         ]);
     }
 
-    public function verify(Request $request, Donation $donation, AuditLogService $auditLogService, DiscordWebhookService $discord)
+    public function verify(
+        Request $request,
+        Donation $donation,
+        AuditLogService $auditLogService,
+        DiscordWebhookService $discord,
+        DonationSettlementService $donationSettlementService
+    )
     {
         $data = $request->validate([
             'action' => ['required', 'in:approve,reject'],
@@ -28,42 +33,20 @@ class DonationVerificationController extends Controller
         ]);
 
         if ($data['action'] === 'approve') {
-            $receiptNumber = 'KW-' . now()->format('Ymd') . '-' . str_pad((string) $donation->id, 5, '0', STR_PAD_LEFT);
-            $filePath = 'receipts/' . $receiptNumber . '.pdf';
-
-            $pdf = Pdf::loadView('reports.pdf.receipt-official', [
-                'donation' => $donation,
-                'receiptNumber' => $receiptNumber,
-                'verifiedAt' => now(),
-                'approver' => $request->user(),
-            ])->setPaper('a5', 'portrait');
-
-            Storage::disk('local')->put($filePath, $pdf->output());
-
-            $donation->update([
-                'payment_status' => 'paid',
-                'verification_status' => 'approved',
-                'verified_by' => $request->user()->id,
-                'verified_at' => now(),
-                'receipt_number' => $receiptNumber,
-                'receipt_pdf_path' => $filePath,
-                'rejection_reason' => null,
-            ]);
+            $donationSettlementService->approve(
+                $donation,
+                (int) $request->user()->id,
+                now(),
+                now(),
+                $data['reason'] ?? 'Verifikasi manual admin'
+            );
         } else {
-            $donation->update([
-                'verification_status' => 'rejected',
-                'verified_by' => $request->user()->id,
-                'verified_at' => now(),
-                'rejection_reason' => $data['reason'] ?? 'Tidak memenuhi verifikasi',
-            ]);
+            $donationSettlementService->reject(
+                $donation,
+                (int) $request->user()->id,
+                $data['reason'] ?? 'Tidak memenuhi verifikasi'
+            );
         }
-
-        DonationVerificationLog::create([
-            'donation_id' => $donation->id,
-            'acted_by' => $request->user()->id,
-            'action' => $data['action'],
-            'reason' => $data['reason'] ?? null,
-        ]);
 
         $auditLogService->record($request, 'verify_donation', 'Verifikasi donasi #' . $donation->id . ' (' . $data['action'] . ')', 'donations', $donation->id);
         $discord->send('donation_verification', [

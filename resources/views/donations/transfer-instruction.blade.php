@@ -35,10 +35,16 @@
             <p class="muted" style="margin-top:10px;">Setelah transfer berhasil, lanjutkan upload bukti transfer pada form di bawah.</p>
         @else
             <h3>Pembayaran QRIS</h3>
-            <p class="muted" style="margin-top:10px;">Scan QR berikut dengan aplikasi pembayaran, bayar sesuai nominal, lalu upload bukti transfer.</p>
+            <p class="muted" style="margin-top:10px;">Scan QR berikut untuk bayar otomatis sesuai nominal. Tidak perlu upload bukti transfer manual.</p>
+            <p class="muted" style="margin-top:6px;"><strong>Catatan:</strong> Transaksi QRIS otomatis gagal jika tidak dibayar dalam 15 menit.</p>
+            @if(!empty($qrisExpiredAt))
+                <div class="muted" style="margin-top:8px;"><strong>Berlaku sampai:</strong> {{ \Illuminate\Support\Carbon::parse($qrisExpiredAt)->format('d-m-Y H:i:s') }}</div>
+            @endif
         @endif
         <img
-            @if($qrDataUri)
+            @if(!empty($qrisImage))
+                src="{{ $qrisImage }}"
+            @elseif($qrDataUri)
                 src="{{ $qrDataUri }}"
             @else
                 data-qr-payload="{{ $qrPayload }}"
@@ -48,17 +54,19 @@
     </div>
 </div>
 
-<div class="card" style="margin-top:14px;">
-    <h3>Upload Bukti Transfer (Wajib)</h3>
-    <form action="{{ route('umat.donations.upload-proof', $donation) }}" method="POST" enctype="multipart/form-data" class="form-grid">
-        @csrf
-        <div>
-            <label for="user-proof-file">File Bukti (jpg/jpeg/png/pdf)</label>
-            <input id="user-proof-file" type="file" name="transfer_proof" accept=".jpg,.jpeg,.png,.pdf" required>
-        </div>
-        <button type="submit" class="btn btn-green">Saya Sudah Transfer & Upload Bukti</button>
-    </form>
-</div>
+@if($transferChannel === 'bank_transfer')
+    <div class="card" style="margin-top:14px;">
+        <h3>Upload Bukti Transfer (Wajib)</h3>
+        <form action="{{ route('umat.donations.upload-proof', $donation) }}" method="POST" enctype="multipart/form-data" class="form-grid">
+            @csrf
+            <div>
+                <label for="user-proof-file">File Bukti (jpg/jpeg/png/pdf)</label>
+                <input id="user-proof-file" type="file" name="transfer_proof" accept=".jpg,.jpeg,.png,.pdf" required>
+            </div>
+            <button type="submit" class="btn btn-green btn-upload-proof">Saya Sudah Transfer & Upload Bukti</button>
+        </form>
+    </div>
+@endif
 
 <div class="card" style="margin-top:14px;">
     <h3>Langkah Verifikasi</h3>

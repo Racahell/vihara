@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -19,7 +20,13 @@ class AuthController extends Controller
 {
     public function showLogin()
     {
-        return view('auth.login');
+        return view('auth.login', [
+            'waResetUrl' => session('wa_reset_url'),
+            'showResendVerification' => (bool) session('show_resend_verification', false),
+            'pendingVerificationEmail' => (string) session('pending_verification_email', ''),
+            'showForgotPassword' => (bool) session('show_forgot_password', false),
+            'forgotPasswordMethod' => (string) session('forgot_password_method', ''),
+        ]);
     }
 
     public function showRegister(Request $request)
@@ -38,12 +45,114 @@ class AuthController extends Controller
         ]);
     }
 
+    public function showResetPassword(Request $request, string $token)
+    {
+        return view('auth.reset-password', [
+            'token' => $token,
+            'email' => (string) $request->query('email', ''),
+        ]);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $data = $request->validate([
+            'token' => ['required', 'string'],
+            'email' => ['required', 'email'],
+            'password' => ['required', 'confirmed', 'min:8'],
+        ]);
+
+        $status = Password::reset(
+            $data,
+            function (User $user, string $password): void {
+                $user->forceFill([
+                    'password' => Hash::make($password),
+                    'remember_token' => Str::random(60),
+                ])->save();
+            }
+        );
+
+        if ($status !== Password::PASSWORD_RESET) {
+            return back()->withErrors(['email' => __($status)]);
+        }
+
+        return redirect()->route('login')->with('status', 'Password berhasil direset. Silakan login kembali.');
+    }
+
+    public function sendResetLinkEmail(Request $request)
+    {
+        $data = $request->validate([
+            'email' => ['required', 'email'],
+        ]);
+
+        $status = Password::sendResetLink(['email' => $data['email']]);
+        if ($status !== Password::RESET_LINK_SENT) {
+            return back()->withErrors(['reset_password' => __($status)])
+                ->withInput()
+                ->with('show_forgot_password', true)
+                ->with('forgot_password_method', 'email');
+        }
+
+        return back()
+            ->with('status', 'Link reset password telah dikirim ke email Anda.')
+            ->with('show_forgot_password', true)
+            ->with('forgot_password_method', 'email');
+    }
+
+    public function prepareResetLinkWhatsapp(Request $request)
+    {
+        $data = $request->validate([
+            'phone' => ['required', 'string', 'max:32'],
+        ]);
+
+        $targetPhone = $this->normalizeWhatsappNumber((string) $data['phone']);
+        if ($targetPhone === null) {
+            return back()->withErrors([
+                'reset_password' => 'Nomor HP tidak valid. Gunakan format 08xxx atau 62xxx.',
+            ])->withInput()
+                ->with('show_forgot_password', true)
+                ->with('forgot_password_method', 'whatsapp');
+        }
+
+        /** @var User|null $user */
+        $user = User::query()
+            ->get()
+            ->first(fn (User $item) => $this->normalizeWhatsappNumber((string) $item->phone) === $targetPhone);
+        if (! $user) {
+            return back()->withErrors(['reset_password' => 'Nomor HP tidak ditemukan.'])
+                ->withInput()
+                ->with('show_forgot_password', true)
+                ->with('forgot_password_method', 'whatsapp');
+        }
+
+        $phoneDigits = $this->normalizeWhatsappNumber((string) $user->phone);
+        if ($phoneDigits === null) {
+            return back()->withErrors([
+                'reset_password' => 'Nomor HP untuk akun ini belum valid untuk WhatsApp.',
+            ])->withInput()
+                ->with('show_forgot_password', true)
+                ->with('forgot_password_method', 'whatsapp');
+        }
+
+        $token = Password::broker()->createToken($user);
+        $resetUrl = route('password.reset', [
+            'token' => $token,
+            'email' => $user->email,
+        ]);
+
+        $message = "Halo {$user->name}, ini link reset password akun Anda: {$resetUrl}";
+        $waUrl = 'https://wa.me/' . $phoneDigits . '?text=' . rawurlencode($message);
+
+        return redirect()->away($waUrl);
+    }
+
     public function register(Request $request)
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'phone' => ['nullable', 'string', 'max:32'],
+            'gender' => ['required', 'string', 'in:L,P'],
+            'address' => ['required', 'string', 'max:255'],
             'password' => ['required', 'confirmed', 'min:8'],
         ]);
 
@@ -54,6 +163,8 @@ class AuthController extends Controller
             'email' => $validated['email'],
             'username' => Str::before($validated['email'], '@') . '-' . Str::lower(Str::random(4)),
             'phone' => $validated['phone'] ?? null,
+            'gender' => $validated['gender'],
+            'address' => $validated['address'],
             'password' => Hash::make($validated['password']),
             'is_active' => false,
             'registration_ip' => $request->ip(),
@@ -78,7 +189,52 @@ class AuthController extends Controller
             // Fallback handled by admin activation menu.
         }
 
-        return redirect()->route('login')->with('status', 'Pendaftaran berhasil. Cek email untuk aktivasi akun.');
+        return redirect()->route('login')
+            ->with('status', 'Pendaftaran berhasil. Cek email untuk aktivasi akun.')
+            ->with('show_resend_verification', true)
+            ->with('pending_verification_email', $validated['email']);
+    }
+
+    public function resendVerificationEmail(Request $request)
+    {
+        $data = $request->validate([
+            'email' => ['required', 'email'],
+        ]);
+
+        /** @var User|null $user */
+        $user = User::query()->where('email', $data['email'])->first();
+        if (! $user) {
+            return back()->withErrors(['resend_verification' => 'Email tidak ditemukan.'])
+                ->withInput()
+                ->with('show_resend_verification', true);
+        }
+
+        if ((bool) $user->is_active && $user->email_verified_at) {
+            return back()->withErrors(['resend_verification' => 'Akun ini sudah aktif dan terverifikasi.'])
+                ->withInput()
+                ->with('show_resend_verification', true)
+                ->with('pending_verification_email', $data['email']);
+        }
+
+        $verifyUrl = route('verify.email', [
+            'id' => $user->id,
+            'hash' => sha1($user->email),
+        ]);
+
+        try {
+            Mail::raw(
+                "Halo {$user->name},\n\nSilakan aktivasi akun Anda dengan membuka tautan ini:\n{$verifyUrl}\n\nTerima kasih.",
+                fn ($message) => $message->to($user->email)->subject('Aktivasi Akun Vihara - Kirim Ulang')
+            );
+        } catch (\Throwable) {
+            return back()->withErrors([
+                'resend_verification' => 'Gagal mengirim ulang email verifikasi. Coba lagi.',
+            ])->withInput()
+                ->with('show_resend_verification', true)
+                ->with('pending_verification_email', $data['email']);
+        }
+
+        return back()->with('status', 'Email verifikasi berhasil dikirim ulang.');
     }
 
     public function verifyEmail(Request $request, int $id, string $hash)
@@ -108,6 +264,18 @@ class AuthController extends Controller
             'password' => ['required', 'string'],
         ]);
 
+        /** @var User|null $existingUser */
+        $existingUser = User::query()->where('email', $credentials['email'])->first();
+        if ($existingUser && Hash::check($credentials['password'], $existingUser->password)) {
+            if (! $existingUser->email_verified_at || ! (bool) $existingUser->is_active) {
+                return back()->withErrors([
+                    'email' => 'Akun belum aktif. Silakan verifikasi email terlebih dahulu.',
+                ])->withInput($request->only('email'))
+                    ->with('show_resend_verification', true)
+                    ->with('pending_verification_email', $credentials['email']);
+            }
+        }
+
         if (Auth::attempt($credentials, (bool) $request->boolean('remember'))) {
             $request->session()->regenerate();
 
@@ -129,7 +297,7 @@ class AuthController extends Controller
 
             $auditLogService->record($request, 'login', 'Pengguna berhasil login', 'users', $user->id);
 
-            return redirect()->intended(route('dashboard'));
+            return redirect()->intended(route($this->defaultHomeRouteFor($user)));
         }
 
         LoginLog::create([
@@ -142,7 +310,8 @@ class AuthController extends Controller
 
         return back()->withErrors([
             'email' => 'Email atau password salah.',
-        ])->onlyInput('email');
+        ])->onlyInput('email')
+            ->with('show_forgot_password', true);
     }
 
     public function logout(Request $request, AuditLogService $auditLogService)
@@ -236,5 +405,32 @@ class AuthController extends Controller
         $second = random_int(1, 20);
 
         return ["{$first} + {$second}", (string) ($first + $second)];
+    }
+
+    private function defaultHomeRouteFor(User $user): string
+    {
+        if ($user->hasRole('umat')) {
+            return 'umat.dashboard';
+        }
+
+        return 'dashboard';
+    }
+
+    private function normalizeWhatsappNumber(string $phone): ?string
+    {
+        $digits = preg_replace('/\D+/', '', $phone);
+        if (! $digits) {
+            return null;
+        }
+
+        if (str_starts_with($digits, '0')) {
+            $digits = '62' . substr($digits, 1);
+        }
+
+        if (! str_starts_with($digits, '62') || strlen($digits) < 10) {
+            return null;
+        }
+
+        return $digits;
     }
 }

@@ -20,6 +20,9 @@
 </div>
 
 @if($tab === 'activity')
+    <p class="muted" style="margin-top:12px;">
+        Menampilkan {{ $activityLogs?->firstItem() ?? 0 }}-{{ $activityLogs?->lastItem() ?? 0 }} dari total {{ $activityLogs?->total() ?? 0 }} data.
+    </p>
     <div class="table-wrap" style="margin-top:12px;">
         <table>
             <thead><tr><th>Waktu</th><th>User</th><th>Aksi</th><th>Deskripsi</th><th>Target</th></tr></thead>
@@ -42,6 +45,9 @@
 @endif
 
 @if($tab === 'login')
+    <p class="muted" style="margin-top:12px;">
+        Menampilkan {{ $loginLogs?->firstItem() ?? 0 }}-{{ $loginLogs?->lastItem() ?? 0 }} dari total {{ $loginLogs?->total() ?? 0 }} data.
+    </p>
     <div class="table-wrap" style="margin-top:12px;">
         <table>
             <thead><tr><th>Waktu</th><th>Email</th><th>IP</th><th>Status</th></tr></thead>
@@ -63,6 +69,9 @@
 @endif
 
 @if($tab === 'discord')
+    <p class="muted" style="margin-top:12px;">
+        Menampilkan {{ $discordLogs?->firstItem() ?? 0 }}-{{ $discordLogs?->lastItem() ?? 0 }} dari total {{ $discordLogs?->total() ?? 0 }} data.
+    </p>
     <div class="table-wrap" style="margin-top:12px;">
         <table>
             <thead><tr><th>Waktu</th><th>Event</th><th>Status Code</th><th>Response</th></tr></thead>
@@ -84,6 +93,9 @@
 @endif
 
 @if($tab === 'error')
+    <p class="muted" style="margin-top:12px;">
+        Menampilkan {{ $errorLogs?->firstItem() ?? 0 }}-{{ $errorLogs?->lastItem() ?? 0 }} dari total {{ $errorLogs?->total() ?? 0 }} baris log.
+    </p>
     <div class="table-wrap" style="margin-top:12px;">
         <table>
             <thead><tr><th>Baris Log Error (Terbaru)</th></tr></thead>

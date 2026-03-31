@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Riwayat Saya')
 @section('content')
-<div class="grid-2">
+<div class="grid-2 history-grid">
     <div class="card">
         <h3>Riwayat Pendaftaran</h3>
         @forelse($registrations as $reg)
@@ -10,6 +10,8 @@
                 <div>
                     <strong>{{ $reg->activity->title ?? '-' }}</strong>
                     <div class="muted">{{ $reg->registration_code }} | {{ strtoupper($reg->attendance_status) }}</div>
+                    <div class="muted">{{ $reg->participant_name }} | Usia {{ $reg->participant_age ?? '-' }} | {{ $reg->participant_gender === 'L' ? 'Laki-laki' : ($reg->participant_gender === 'P' ? 'Perempuan' : '-') }}</div>
+                    <div class="muted">Alamat: {{ $reg->participant_address ?? '-' }}</div>
                     <div class="muted">Tunjukkan QR ini saat check-in di vihara.</div>
                     <div style="margin-top:8px;">
                         <a class="btn btn-secondary" href="{{ route('umat.my-history.ticket-pdf', $reg) }}">Unduh QR ke PDF</a>

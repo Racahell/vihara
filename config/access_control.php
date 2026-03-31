@@ -21,10 +21,12 @@ return [
         'admin.registrations.index' => 'pendaftaran_kegiatan.view',
 
         'shared.checkin.index' => 'check_in.view',
+        'shared.checkin.attendance' => 'check_in.view',
         'shared.checkin.by-code' => 'check_in.create',
         'shared.checkin.walkin' => 'check_in.create',
 
         'umat.donations.index' => 'donasi.view',
+        'umat.donations.pay' => 'donasi.view',
         'umat.donations.store' => 'donasi.create',
         'umat.donations.upload-proof' => 'donasi.edit',
 
@@ -54,4 +56,3 @@ return [
         'admin.logs.login' => 'log_sistem.view',
     ],
 ];
-

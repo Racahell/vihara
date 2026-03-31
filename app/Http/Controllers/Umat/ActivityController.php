@@ -9,17 +9,20 @@ use App\Models\FavoriteActivity;
 use App\Services\AuditLogService;
 use App\Support\RegistrationCode;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class ActivityController extends Controller
 {
     public function index()
     {
-        $user = auth()->user();
+        return $this->renderActivities(false);
+    }
 
-        return view('umat.activities', [
-            'activities' => Activity::where('is_active', true)->orderBy('start_at')->paginate(12),
-            'favoriteIds' => FavoriteActivity::where('user_id', $user->id)->pluck('activity_id')->all(),
-        ]);
+    public function favorites()
+    {
+        return $this->renderActivities(true);
     }
 
     public function show(Activity $activity)
@@ -30,35 +33,67 @@ class ActivityController extends Controller
     public function register(Request $request, Activity $activity, AuditLogService $auditLogService)
     {
         $user = $request->user();
+        $data = $request->validate([
+            'participants' => ['required', 'array', 'min:1', 'max:10'],
+            'participants.*.name' => ['required', 'string', 'max:255'],
+            'participants.*.age' => ['required', 'integer', 'min:0', 'max:120'],
+            'participants.*.gender' => ['required', 'string', Rule::in(['L', 'P'])],
+            'participants.*.address' => ['required', 'string', 'max:255'],
+        ]);
+        $participants = collect($data['participants'])->values();
+        $requestedCount = $participants->count();
 
-        if ($activity->registered_count >= $activity->quota) {
+        if (($activity->registered_count + $requestedCount) > $activity->quota) {
             return back()->withErrors(['quota' => 'Kuota kegiatan sudah penuh.']);
         }
 
-        if (ActivityRegistration::where('activity_id', $activity->id)->where('user_id', $user->id)->exists()) {
-            return back()->withErrors(['duplikat' => 'Anda sudah terdaftar pada kegiatan ini.']);
-        }
+        $createdCount = 0;
+        $codes = [];
 
-        $code = RegistrationCode::make('REG');
+        DB::transaction(function () use ($participants, $activity, $requestedCount, $user, &$createdCount, &$codes, $request, $auditLogService): void {
+            $lockedActivity = Activity::query()->whereKey($activity->id)->lockForUpdate()->firstOrFail();
+            if (($lockedActivity->registered_count + $requestedCount) > $lockedActivity->quota) {
+                throw ValidationException::withMessages([
+                    'quota' => ['Sisa kuota kegiatan tidak mencukupi untuk jumlah peserta yang didaftarkan.'],
+                ]);
+            }
 
-        $registration = ActivityRegistration::create([
-            'activity_id' => $activity->id,
-            'user_id' => $user->id,
-            'participant_name' => $user->name,
-            'participant_phone' => $user->phone,
-            'registration_code' => $code,
-            'qr_payload' => 'reg:' . $code,
-            'registration_type' => 'regular',
-            'attendance_status' => 'belum',
-            'registered_at' => now(),
-            'created_by' => $user->id,
-        ]);
+            foreach ($participants as $participant) {
+                $code = RegistrationCode::make('REG');
+                $registration = ActivityRegistration::create([
+                    'activity_id' => $lockedActivity->id,
+                    'user_id' => $user->id,
+                    'participant_name' => (string) $participant['name'],
+                    'participant_phone' => $user->phone,
+                    'participant_age' => (int) $participant['age'],
+                    'participant_gender' => (string) $participant['gender'],
+                    'participant_address' => (string) $participant['address'],
+                    'registration_code' => $code,
+                    'qr_payload' => 'reg:' . $code,
+                    'registration_type' => 'regular',
+                    'attendance_status' => 'belum',
+                    'registered_at' => now(),
+                    'created_by' => $user->id,
+                ]);
 
-        $activity->increment('registered_count');
+                $createdCount++;
+                $codes[] = $code;
 
-        $auditLogService->record($request, 'register_activity', 'Daftar kegiatan: ' . $activity->title, 'activity_registrations', $registration->id);
+                $auditLogService->record(
+                    $request,
+                    'register_activity',
+                    'Daftar kegiatan: ' . $lockedActivity->title . ' - Peserta: ' . $registration->participant_name,
+                    'activity_registrations',
+                    $registration->id
+                );
+            }
 
-        return redirect()->route('umat.my-history')->with('status', 'Pendaftaran berhasil. Kode tiket: ' . $code);
+            $lockedActivity->increment('registered_count', $createdCount);
+        });
+
+        return redirect()
+            ->route('umat.my-history')
+            ->with('status', 'Pendaftaran berhasil untuk ' . $createdCount . ' peserta. Kode: ' . implode(', ', $codes));
     }
 
     public function favorite(Request $request, Activity $activity)
@@ -69,5 +104,22 @@ class ActivityController extends Controller
         ]);
 
         return back()->with('status', 'Kegiatan ditambahkan ke favorit.');
+    }
+
+    private function renderActivities(bool $favoritesOnly)
+    {
+        $user = auth()->user();
+        $favoriteIds = FavoriteActivity::where('user_id', $user->id)->pluck('activity_id')->all();
+
+        $query = Activity::where('is_active', true)->orderBy('start_at');
+        if ($favoritesOnly) {
+            $query->whereIn('id', $favoriteIds ?: [0]);
+        }
+
+        return view('umat.activities', [
+            'activities' => $query->paginate(12),
+            'favoriteIds' => $favoriteIds,
+            'favoritesOnly' => $favoritesOnly,
+        ]);
     }
 }

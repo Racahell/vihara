@@ -14,13 +14,22 @@ use Illuminate\Validation\Rule;
 
 class UserManagementController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $isOwnerReadOnly = request()->user()?->hasRole('owner') ?? false;
-        $canCreateUser = request()->user()?->hasRole('superadmin') ?? false;
-        $perPage = (int) request()->integer('per_page', 10);
+        $isOwnerReadOnly = $request->user()?->hasRole('owner') ?? false;
+        $canCreateUser = $request->user()?->hasRole('superadmin') ?? false;
+        $canViewDeleted = $request->user()?->hasRole('superadmin') ?? false;
+        $tab = (string) $request->query('tab', 'active');
+        if (! in_array($tab, ['active', 'deleted'], true)) {
+            $tab = 'active';
+        }
+        if ($tab === 'deleted' && ! $canViewDeleted) {
+            $tab = 'active';
+        }
+
+        $perPage = (int) $request->integer('per_page', 10);
         $perPage = in_array($perPage, [10, 25, 50, 100], true) ? $perPage : 10;
-        $q = trim((string) request()->query('q', ''));
+        $q = trim((string) $request->query('q', ''));
 
         $users = User::with('roles')
             ->when($q !== '', function ($query) use ($q): void {
@@ -33,15 +42,34 @@ class UserManagementController extends Controller
             })
             ->latest()
             ->paginate($perPage)
-            ->appends(request()->query());
+            ->appends($request->query());
+
+        $deletedUsers = $canViewDeleted
+            ? User::onlyTrashed()
+                ->with('roles')
+                ->when($q !== '', function ($query) use ($q): void {
+                    $query->where(function ($inner) use ($q): void {
+                        $inner->where('name', 'like', '%' . $q . '%')
+                            ->orWhere('email', 'like', '%' . $q . '%')
+                            ->orWhere('username', 'like', '%' . $q . '%')
+                            ->orWhere('phone', 'like', '%' . $q . '%');
+                    });
+                })
+                ->latest('deleted_at')
+                ->paginate($perPage, ['*'], 'deleted_page')
+                ->appends($request->query())
+            : null;
 
         return view('admin.users', [
             'users' => $users,
+            'deletedUsers' => $deletedUsers,
             'roles' => Role::orderBy('name')->get(),
             'perPage' => $perPage,
             'q' => $q,
+            'tab' => $tab,
             'isOwnerReadOnly' => $isOwnerReadOnly,
             'canCreateUser' => $canCreateUser,
+            'canViewDeleted' => $canViewDeleted,
         ]);
     }
 
@@ -214,6 +242,33 @@ class UserManagementController extends Controller
         $auditLogService->record($request, 'delete_user', 'Hapus pengguna: ' . $email, 'users', $user->id);
 
         return back()->with('status', 'Pengguna berhasil dihapus (soft delete).');
+    }
+
+    public function restore(Request $request, int $userId, AuditLogService $auditLogService)
+    {
+        $user = User::onlyTrashed()->findOrFail($userId);
+        $user->restore();
+
+        $auditLogService->record($request, 'restore_user', 'Restore pengguna: ' . $user->email, 'users', $user->id);
+
+        return back()->with('status', 'Pengguna berhasil direstore.');
+    }
+
+    public function forceDelete(Request $request, int $userId, AuditLogService $auditLogService)
+    {
+        $user = User::onlyTrashed()->findOrFail($userId);
+        if ($user->hasRole('superadmin')) {
+            return back()->withErrors(['user' => 'User superadmin tidak dapat dihapus permanen.']);
+        }
+
+        $email = $user->email;
+        $id = $user->id;
+        $user->roles()->detach();
+        $user->forceDelete();
+
+        $auditLogService->record($request, 'hard_delete_user', 'Hapus permanen pengguna: ' . $email, 'users', $id);
+
+        return back()->with('status', 'Pengguna berhasil dihapus permanen.');
     }
 
     private function generateUniqueUsername(string $email): string

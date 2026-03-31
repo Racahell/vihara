@@ -14,6 +14,9 @@ class ActivityRegistration extends Model
         'user_id',
         'participant_name',
         'participant_phone',
+        'participant_age',
+        'participant_gender',
+        'participant_address',
         'registration_code',
         'qr_payload',
         'registration_type',
@@ -27,6 +30,7 @@ class ActivityRegistration extends Model
     protected $casts = [
         'registered_at' => 'datetime',
         'checked_in_at' => 'datetime',
+        'participant_age' => 'integer',
     ];
 
     public function activity()

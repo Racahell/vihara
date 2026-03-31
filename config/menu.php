@@ -9,6 +9,7 @@ return [
                 ['label' => 'Manajemen Pengguna', 'route' => 'admin.users.index'],
                 ['label' => 'Hak Akses', 'route' => 'admin.users.access'],
                 ['label' => 'Pengurus', 'route' => 'admin.pengurus.index'],
+                ['label' => 'Profil Saya', 'route' => 'profile.show'],
             ],
         ],
         [
@@ -44,6 +45,7 @@ return [
                 ['label' => 'Dashboard', 'route' => 'dashboard'],
                 ['label' => 'Manajemen Pengguna', 'route' => 'admin.users.index'],
                 ['label' => 'Pengurus', 'route' => 'admin.pengurus.index'],
+                ['label' => 'Profil Saya', 'route' => 'profile.show'],
             ],
         ],
         [
@@ -66,6 +68,7 @@ return [
         [
             'title' => 'Sistem',
             'items' => [
+                ['label' => 'Pengaturan Website', 'route' => 'admin.website-settings.edit'],
                 ['label' => 'Log Sistem', 'route' => 'admin.logs.index'],
             ],
         ],
@@ -79,6 +82,7 @@ return [
                 ['label' => 'Donasi', 'route' => 'umat.donations.index'],
                 ['label' => 'Laporan', 'route' => 'reports.donations'],
                 ['label' => 'Pengurus', 'route' => 'admin.pengurus.index'],
+                ['label' => 'Profil Saya', 'route' => 'profile.show'],
             ],
         ],
     ],
@@ -89,8 +93,8 @@ return [
                 ['label' => 'Dashboard', 'route' => 'dashboard'],
                 ['label' => 'Pendaftaran Kegiatan', 'route' => 'admin.registrations.index'],
                 ['label' => 'Check In', 'route' => 'shared.checkin.index'],
-                ['label' => 'Data Kehadiran Hari Ini', 'route' => 'shared.checkin.index'],
-                ['label' => 'Pendaftaran Langsung / Walk-In', 'route' => 'shared.checkin.index'],
+                ['label' => 'Data Kehadiran', 'route' => 'shared.checkin.attendance'],
+                ['label' => 'Profil Saya', 'route' => 'profile.show'],
             ],
         ],
     ],
@@ -98,13 +102,10 @@ return [
         [
             'title' => 'Menu Umat',
             'items' => [
-                ['label' => 'Beranda', 'route' => 'dashboard'],
-                ['label' => 'Jadwal Kegiatan', 'route' => 'umat.activities.index'],
-                ['label' => 'Event / Kegiatan', 'route' => 'umat.activities.index'],
-                ['label' => 'Favorit Kegiatan', 'route' => 'umat.activities.index'],
-                ['label' => 'Donasi', 'route' => 'umat.donations.index'],
+                ['label' => 'Beranda', 'route' => 'umat.dashboard'],
                 ['label' => 'Riwayat Saya', 'route' => 'umat.my-history'],
-                ['label' => 'Profil Saya', 'route' => 'dashboard'],
+                ['label' => 'Donasi', 'route' => 'umat.donations.index'],
+                ['label' => 'Profil Saya', 'route' => 'profile.show'],
             ],
         ],
     ],
