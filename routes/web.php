@@ -1,7 +1,7 @@
 <?php
 
-<<<<<<< HEAD
 use App\Http\Controllers\Admin\ActivityManagementController;
+use App\Http\Controllers\Admin\BackupRestoreController;
 use App\Http\Controllers\Admin\DonationVerificationController;
 use App\Http\Controllers\Admin\LogController;
 use App\Http\Controllers\Admin\NotificationController;
@@ -38,62 +38,71 @@ Route::middleware('guest')->group(function () {
 Route::post('/payments/midtrans/callback', MidtransCallbackController::class)->name('payments.midtrans.callback');
 
 Route::middleware(['auth', 'active'])->group(function () {
-    Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::get('/dashboard', DashboardController::class)->middleware('permission:dashboard.view')->name('dashboard');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::middleware('role:superadmin,admin,owner')->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
-        Route::get('/pengurus', [PengurusController::class, 'index'])->name('pengurus.index');
+        Route::get('/users', [UserManagementController::class, 'index'])->middleware('permission:data_user.view')->name('users.index');
+        Route::get('/pengurus', [PengurusController::class, 'index'])->middleware('permission:pengurus.view')->name('pengurus.index');
     });
 
     Route::middleware('role:superadmin,admin')->prefix('admin')->name('admin.')->group(function () {
-        Route::post('/users/{user}/role', [UserManagementController::class, 'updateRole'])->name('users.update-role');
-        Route::post('/users/{user}/update', [UserManagementController::class, 'update'])->name('users.update');
-        Route::delete('/users/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy');
-        Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+        Route::post('/users/{user}/role', [UserManagementController::class, 'updateRole'])->middleware('permission:data_user.edit')->name('users.update-role');
+        Route::post('/users/{user}/update', [UserManagementController::class, 'update'])->middleware('permission:data_user.edit')->name('users.update');
+        Route::delete('/users/{user}', [UserManagementController::class, 'destroy'])->middleware('permission:data_user.delete')->name('users.destroy');
+        Route::get('/notifications', [NotificationController::class, 'index'])->middleware('permission:notifikasi.view')->name('notifications.index');
     });
 
     Route::middleware('role:superadmin')->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/website-settings', [WebsiteSettingController::class, 'edit'])->name('website-settings.edit');
-        Route::post('/website-settings', [WebsiteSettingController::class, 'update'])->name('website-settings.update');
+        Route::get('/users/access', [UserManagementController::class, 'access'])->middleware('permission:hak_akses.view')->name('users.access');
+        Route::post('/users/access', [UserManagementController::class, 'updateAccess'])->middleware('permission:hak_akses.edit')->name('users.access.update');
+        Route::post('/users', [UserManagementController::class, 'store'])->middleware('permission:data_user.create')->name('users.store');
+        Route::get('/website-settings', [WebsiteSettingController::class, 'edit'])->middleware('permission:pengaturan_website.view')->name('website-settings.edit');
+        Route::post('/website-settings', [WebsiteSettingController::class, 'update'])->middleware('permission:pengaturan_website.edit')->name('website-settings.update');
+        Route::get('/backup-restore', [BackupRestoreController::class, 'index'])->middleware('permission:backup_restore.view')->name('backup-restore.index');
+        Route::get('/restore-data', [BackupRestoreController::class, 'index'])->middleware('permission:backup_restore.view')->name('restore-data.index');
+        Route::post('/backup-restore/backup', [BackupRestoreController::class, 'backup'])->middleware('permission:backup_restore.create')->name('backup-restore.backup');
+        Route::post('/backup-restore/restore', [BackupRestoreController::class, 'restore'])->middleware('permission:backup_restore.edit')->name('backup-restore.restore');
+        Route::post('/backup-restore/clear-data', [BackupRestoreController::class, 'clearData'])->middleware('permission:backup_restore.delete')->name('backup-restore.clear-data');
+        Route::post('/backup-restore/clear-table', [BackupRestoreController::class, 'clearTable'])->middleware('permission:backup_restore.delete')->name('backup-restore.clear-table');
     });
 
     Route::middleware('role:superadmin,admin,owner')->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/activities', [ActivityManagementController::class, 'index'])->name('activities.index');
+        Route::get('/activities', [ActivityManagementController::class, 'index'])->middleware('permission:kegiatan.view')->name('activities.index');
     });
 
     Route::middleware('role:superadmin,admin,petugas')->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/registrations', [RegistrationController::class, 'index'])->name('registrations.index');
+        Route::get('/registrations', [RegistrationController::class, 'index'])->middleware('permission:pendaftaran_kegiatan.view')->name('registrations.index');
     });
 
     Route::middleware('role:superadmin,admin')->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/donation-verification', [DonationVerificationController::class, 'index'])->name('donation-verification.index');
-        Route::get('/donation-receipts/{donation}', [DonationVerificationController::class, 'downloadReceipt'])->name('donation-receipts.download');
-        Route::get('/donation-proofs/{donation}', [DonationVerificationController::class, 'downloadProof'])->name('donation-proof.download');
+        Route::get('/donation-verification', [DonationVerificationController::class, 'index'])->middleware('permission:verifikasi_donasi.view')->name('donation-verification.index');
+        Route::get('/donation-receipts/{donation}', [DonationVerificationController::class, 'downloadReceipt'])->middleware('permission:verifikasi_donasi.view')->name('donation-receipts.download');
+        Route::get('/donation-proofs/{donation}', [DonationVerificationController::class, 'downloadProof'])->middleware('permission:verifikasi_donasi.view')->name('donation-proof.download');
     });
 
     Route::middleware('role:superadmin,admin')->prefix('admin')->name('admin.')->group(function () {
-        Route::post('/activities', [ActivityManagementController::class, 'store'])->name('activities.store');
-        Route::post('/donation-verification/{donation}', [DonationVerificationController::class, 'verify'])->name('donation-verification.verify');
+        Route::post('/activities', [ActivityManagementController::class, 'store'])->middleware('permission:kegiatan.create')->name('activities.store');
+        Route::post('/donation-verification/{donation}', [DonationVerificationController::class, 'verify'])->middleware('permission:verifikasi_donasi.edit')->name('donation-verification.verify');
     });
 
     Route::middleware('role:superadmin,admin')->prefix('logs')->name('admin.logs.')->group(function () {
-        Route::get('/', [LogController::class, 'index'])->name('index');
-        Route::get('/activity', [LogController::class, 'activity'])->name('activity');
-        Route::get('/login', [LogController::class, 'login'])->name('login');
+        Route::get('/', [LogController::class, 'index'])->middleware('permission:log_sistem.view')->name('index');
+        Route::get('/activity', [LogController::class, 'activity'])->middleware('permission:log_sistem.view')->name('activity');
+        Route::get('/login', [LogController::class, 'login'])->middleware('permission:log_sistem.view')->name('login');
     });
 
     Route::middleware('role:superadmin,admin,petugas')->prefix('checkin')->name('shared.checkin.')->group(function () {
-        Route::get('/', [CheckInController::class, 'index'])->name('index');
-        Route::post('/by-code', [CheckInController::class, 'byCode'])->name('by-code');
-        Route::post('/walkin', [CheckInController::class, 'walkIn'])->name('walkin');
+        Route::get('/', [CheckInController::class, 'index'])->middleware('permission:check_in.view')->name('index');
+        Route::post('/by-code', [CheckInController::class, 'byCode'])->middleware('permission:check_in.create')->name('by-code');
+        Route::post('/walkin', [CheckInController::class, 'walkIn'])->middleware('permission:check_in.create')->name('walkin');
     });
 
     Route::middleware('role:superadmin,admin,owner')->prefix('reports')->name('reports.')->group(function () {
-        Route::get('/donations', [ReportController::class, 'donation'])->name('donations');
-        Route::get('/donations/pdf', [ReportController::class, 'donationPdf'])->name('donations.pdf');
-        Route::get('/donations/excel', [ReportController::class, 'donationExcel'])->name('donations.excel');
-        Route::get('/donations/print', [ReportController::class, 'donationPrint'])->name('donations.print');
+        Route::get('/donations', [ReportController::class, 'donation'])->middleware('permission:laporan.view')->name('donations');
+        Route::get('/donations/pdf', [ReportController::class, 'donationPdf'])->middleware('permission:laporan.view')->name('donations.pdf');
+        Route::get('/donations/excel', [ReportController::class, 'donationExcel'])->middleware('permission:laporan.view')->name('donations.excel');
+        Route::get('/donations/print', [ReportController::class, 'donationPrint'])->middleware('permission:laporan.view')->name('donations.print');
     });
 
     Route::middleware('role:umat,superadmin,admin,owner')->prefix('umat')->name('umat.')->group(function () {
@@ -102,7 +111,7 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::post('/activities/{activity}/register', [ActivityController::class, 'register'])->name('activities.register');
         Route::post('/activities/{activity}/favorite', [ActivityController::class, 'favorite'])->name('activities.favorite');
 
-        Route::get('/donations', [DonationController::class, 'index'])->name('donations.index');
+        Route::get('/donations', [DonationController::class, 'index'])->middleware('permission:donasi.view')->name('donations.index');
 
         Route::get('/my-history', MyHistoryController::class)->name('my-history');
         Route::get('/my-history/registrations/{registration}/ticket-pdf', [MyHistoryController::class, 'ticketPdf'])
@@ -110,18 +119,7 @@ Route::middleware(['auth', 'active'])->group(function () {
     });
 
     Route::middleware('role:umat,superadmin,admin')->prefix('umat')->name('umat.')->group(function () {
-        Route::post('/donations', [DonationController::class, 'store'])->name('donations.store');
-        Route::post('/donations/{donation}/proof', [DonationController::class, 'uploadProof'])->name('donations.upload-proof');
+        Route::post('/donations', [DonationController::class, 'store'])->middleware('permission:donasi.create')->name('donations.store');
+        Route::post('/donations/{donation}/proof', [DonationController::class, 'uploadProof'])->middleware('permission:donasi.edit')->name('donations.upload-proof');
     });
 });
-=======
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Login;
-
-Route::get('/login', [Login::class, 'showLoginForm'])->name('login');
-Route::post('/login', [Login::class, 'login']);
-Route::post('/logout', [Login::class, 'logout'])->name('logout');
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware('auth');
->>>>>>> e2927c017d800ba2c0919a3f2a14f7de18623268

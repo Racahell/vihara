@@ -14,10 +14,6 @@ class ExampleTest extends TestCase
     {
         $response = $this->get('/');
 
-<<<<<<< HEAD
         $response->assertRedirect(route('guest.home'));
-=======
-        $response->assertStatus(200);
->>>>>>> e2927c017d800ba2c0919a3f2a14f7de18623268
     }
 }

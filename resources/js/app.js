@@ -1,5 +1,4 @@
 import './bootstrap';
-<<<<<<< HEAD
 import Chart from 'chart.js/auto';
 import { Html5Qrcode } from 'html5-qrcode';
 import QRCode from 'qrcode';
@@ -188,11 +187,71 @@ const initModalHandlers = () => {
     });
 };
 
+const initTabs = () => {
+    document.querySelectorAll('[data-tabs-wrapper]').forEach((wrapper) => {
+        const buttons = wrapper.querySelectorAll('[data-tab-btn]');
+        const form = wrapper.nextElementSibling;
+        if (!form) return;
+
+        const panels = form.querySelectorAll('[data-tab-panel]');
+        if (!buttons.length || !panels.length) return;
+
+        const showTab = (tabName) => {
+            buttons.forEach((btn) => {
+                btn.classList.toggle('active', btn.dataset.tabBtn === tabName);
+            });
+            panels.forEach((panel) => {
+                panel.classList.toggle('is-active', panel.dataset.tabPanel === tabName);
+            });
+        };
+
+        buttons.forEach((btn) => {
+            btn.addEventListener('click', () => showTab(btn.dataset.tabBtn));
+        });
+    });
+};
+
+const initAccessMatrix = () => {
+    const wrapper = document.querySelector('[data-access-matrix]');
+    if (!wrapper) return;
+
+    const syncRow = (rowKey) => {
+        const rowItems = wrapper.querySelectorAll(`[data-access-item][data-access-row="${rowKey}"]`);
+        const rowToggle = wrapper.querySelector(`[data-access-row-toggle="${rowKey}"]`);
+        if (!rowToggle || !rowItems.length) return;
+
+        const checkedCount = Array.from(rowItems).filter((item) => item.checked).length;
+        rowToggle.checked = checkedCount > 0 && checkedCount === rowItems.length;
+        rowToggle.indeterminate = checkedCount > 0 && checkedCount < rowItems.length;
+    };
+
+    wrapper.querySelectorAll('[data-access-row-toggle]').forEach((toggle) => {
+        const rowKey = toggle.dataset.accessRowToggle;
+        if (!rowKey) return;
+
+        toggle.addEventListener('change', () => {
+            wrapper.querySelectorAll(`[data-access-item][data-access-row="${rowKey}"]`).forEach((item) => {
+                if (item.disabled) return;
+                item.checked = toggle.checked;
+            });
+            syncRow(rowKey);
+        });
+
+        syncRow(rowKey);
+    });
+
+    wrapper.querySelectorAll('[data-access-item]').forEach((item) => {
+        const rowKey = item.dataset.accessRow;
+        if (!rowKey) return;
+        item.addEventListener('change', () => syncRow(rowKey));
+    });
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     initDashboardCharts();
     initQrRender();
     initQrScanner();
     initModalHandlers();
+    initTabs();
+    initAccessMatrix();
 });
-=======
->>>>>>> e2927c017d800ba2c0919a3f2a14f7de18623268

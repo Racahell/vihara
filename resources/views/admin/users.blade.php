@@ -4,6 +4,11 @@
 <div class="card page-head">
     <h2>Manajemen Pengguna</h2>
     <p class="muted">Kelola akun, role, dan status pengguna.</p>
+    @if($canCreateUser ?? false)
+        <div style="margin-top:12px;">
+            <button type="button" class="btn btn-primary" data-modal-open="create-user-modal">Tambah User</button>
+        </div>
+    @endif
 </div>
 
 <div class="card" style="margin-top:16px;">
@@ -98,7 +103,7 @@
                 @if(! $isOwnerReadOnly)
                     <div class="detail-section">
                         <h4>Edit Data</h4>
-                        <form action="{{ route('admin.users.update', $user) }}" method="POST" class="form-grid modal-edit-form">
+                        <form id="update-user-form-{{ $user->id }}" action="{{ route('admin.users.update', $user) }}" method="POST" class="form-grid modal-edit-form">
                             @csrf
                             <div>
                                 <label for="name-{{ $user->id }}">Nama</label>
@@ -127,19 +132,19 @@
                                     <option value="0" @selected(! $user->is_active)>Nonaktif</option>
                                 </select>
                             </div>
-
-                            <div class="modal-footer-actions">
-                                <button class="btn btn-secondary" type="button" data-modal-close="user-modal-{{ $user->id }}">Tutup</button>
-                                <button class="btn btn-primary" type="submit">Update</button>
-                            </div>
                         </form>
+                        <form id="delete-user-form-{{ $user->id }}" action="{{ route('admin.users.destroy', $user) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus pengguna ini?')">
+                            @csrf
+                            @method('DELETE')
+                        </form>
+                        <div class="modal-footer-actions modal-footer-actions-split">
+                            <button class="btn btn-danger" type="submit" form="delete-user-form-{{ $user->id }}">Hapus User</button>
+                            <div class="modal-footer-right">
+                                <button class="btn btn-secondary" type="button" data-modal-close="user-modal-{{ $user->id }}">Tutup</button>
+                                <button class="btn btn-primary" type="submit" form="update-user-form-{{ $user->id }}">Update</button>
+                            </div>
+                        </div>
                     </div>
-
-                    <form action="{{ route('admin.users.destroy', $user) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus pengguna ini?')">
-                        @csrf
-                        @method('DELETE')
-                        <button class="btn btn-danger" type="submit">Hapus User</button>
-                    </form>
                 @else
                     <div class="detail-section">
                         <p class="muted" style="margin:0;">Akun Owner/Ketua bersifat view-only. Edit, ubah role, dan hapus pengguna dinonaktifkan.</p>
@@ -152,4 +157,69 @@
         </div>
     </div>
 @endforeach
+
+@if($canCreateUser ?? false)
+    <div class="modal" id="create-user-modal" aria-hidden="true">
+        <div class="modal-backdrop" data-modal-close="create-user-modal"></div>
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div>
+                    <h3>Tambah User Baru</h3>
+                    <div class="muted">Hanya superadmin yang dapat menambahkan user baru.</div>
+                </div>
+                <button type="button" class="btn btn-secondary" data-modal-close="create-user-modal">Tutup</button>
+            </div>
+
+            <div class="modal-body">
+                <form action="{{ route('admin.users.store') }}" method="POST" class="form-grid modal-edit-form">
+                    @csrf
+                    <div>
+                        <label for="create-name">Nama</label>
+                        <input id="create-name" type="text" name="name" required>
+                    </div>
+                    <div>
+                        <label for="create-email">Email</label>
+                        <input id="create-email" type="email" name="email" required>
+                    </div>
+                    <div>
+                        <label for="create-username">Username (opsional)</label>
+                        <input id="create-username" type="text" name="username" placeholder="Otomatis jika dikosongkan">
+                    </div>
+                    <div>
+                        <label for="create-phone">No HP</label>
+                        <input id="create-phone" type="text" name="phone" placeholder="No HP">
+                    </div>
+                    <div>
+                        <label for="create-password">Password</label>
+                        <input id="create-password" type="password" name="password" minlength="8" required>
+                    </div>
+                    <div>
+                        <label for="create-password-confirmation">Konfirmasi Password</label>
+                        <input id="create-password-confirmation" type="password" name="password_confirmation" minlength="8" required>
+                    </div>
+                    <div>
+                        <label for="create-role">Role</label>
+                        <select id="create-role" name="role_id" required>
+                            @foreach($roles as $role)
+                                <option value="{{ $role->id }}">{{ $role->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label for="create-status">Status</label>
+                        <select id="create-status" name="is_active" required>
+                            <option value="1" selected>Aktif</option>
+                            <option value="0">Nonaktif</option>
+                        </select>
+                    </div>
+
+                    <div class="modal-footer-actions">
+                        <button class="btn btn-secondary" type="button" data-modal-close="create-user-modal">Tutup</button>
+                        <button class="btn btn-primary" type="submit">Simpan User</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+@endif
 @endsection

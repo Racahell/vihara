@@ -7,7 +7,7 @@ return [
             'items' => [
                 ['label' => 'Dashboard', 'route' => 'dashboard'],
                 ['label' => 'Manajemen Pengguna', 'route' => 'admin.users.index'],
-                ['label' => 'Hak Akses', 'route' => 'admin.users.index'],
+                ['label' => 'Hak Akses', 'route' => 'admin.users.access'],
                 ['label' => 'Pengurus', 'route' => 'admin.pengurus.index'],
             ],
         ],
@@ -32,8 +32,7 @@ return [
             'title' => 'Sistem',
             'items' => [
                 ['label' => 'Pengaturan Website', 'route' => 'admin.website-settings.edit'],
-                ['label' => 'Backup Restore', 'route' => 'dashboard'],
-                ['label' => 'Restore Data', 'route' => 'dashboard'],
+                ['label' => 'Backup Restore', 'route' => 'admin.backup-restore.index'],
                 ['label' => 'Log Sistem', 'route' => 'admin.logs.index'],
             ],
         ],
@@ -110,5 +109,3 @@ return [
         ],
     ],
 ];
-
-

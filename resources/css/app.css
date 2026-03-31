@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 :root {
     --bg: #f8fafc;
     --panel: #ffffff;
@@ -189,6 +188,15 @@ th { color: #425d66; background: #fbfdff; }
 
 .table-search input { min-width: 230px; }
 .table-range { color: #64748b; font-size: 14px; margin: 0; }
+.access-checkbox-cell { text-align: center; }
+.access-checkbox {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    cursor: pointer;
+}
+.access-checkbox:disabled { cursor: not-allowed; }
+.access-footer-actions { margin-top: 10px; }
 
 .page-btn {
     min-width: 36px;
@@ -279,6 +287,8 @@ th { color: #425d66; background: #fbfdff; }
 }
 .modal-body { padding: 16px; display: grid; gap: 12px; }
 .modal-footer-actions { display: flex; justify-content: flex-end; gap: 10px; grid-column: 1 / -1; }
+.modal-footer-actions-split { justify-content: space-between; align-items: center; }
+.modal-footer-right { display: inline-flex; gap: 10px; align-items: center; }
 
 .detail-section {
     border: 1px solid #edf2f7;
@@ -317,6 +327,27 @@ th { color: #425d66; background: #fbfdff; }
     background: #f0fdfa;
     border-color: #99f6e4;
     color: var(--primary);
+}
+.tab-panel { display: none; }
+.tab-panel.is-active { display: grid; gap: 12px; }
+
+.website-logo-preview {
+    width: 88px;
+    height: 88px;
+    object-fit: contain;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    padding: 8px;
+}
+.website-favicon-preview {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    padding: 5px;
 }
 
 .chart-wrap { height: 280px; }
@@ -440,7 +471,9 @@ th { color: #425d66; background: #fbfdff; }
         var(--bg);
 }
 .guest-container {
-    width: min(1120px, calc(100% - 32px));
+    width: 100%;
+    max-width: 100%;
+    padding: 0 36px;
     margin: 0 auto;
 }
 .guest-header {
@@ -456,7 +489,21 @@ th { color: #425d66; background: #fbfdff; }
     align-items: center;
     justify-content: space-between;
     gap: 14px;
-    padding: 12px 0;
+    padding: 12px 14px;
+}
+.guest-brand-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.guest-logo-image {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    border-radius: 12px;
+    border: 1px solid #d1fae5;
+    background: #fff;
+    padding: 4px;
 }
 .guest-brand { display: grid; gap: 2px; }
 .guest-brand strong { font-size: 16px; }
@@ -583,16 +630,6 @@ th { color: #425d66; background: #fbfdff; }
     .guest-feature-grid, .guest-flow { grid-template-columns: 1fr; }
     .guest-stats { grid-template-columns: 1fr; }
     .guest-cta { flex-direction: column; align-items: flex-start; }
-=======
-@import 'tailwindcss';
-
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
-
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
->>>>>>> e2927c017d800ba2c0919a3f2a14f7de18623268
+    .guest-container { padding: 0 16px; }
+    .guest-nav { padding: 10px 8px; }
 }

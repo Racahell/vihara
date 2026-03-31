@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ config('app.name') }} - @yield('title', 'Autentikasi') </title>
+    <title>{{ $siteName ?? config('app.name') }} - @yield('title', 'Autentikasi') </title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>
@@ -20,7 +20,7 @@
                     </svg>
                 </div>
                 <div>
-                    <strong class="auth-logo-title">{{ config('app.name') }}</strong>
+                    <strong class="auth-logo-title">{{ $siteName ?? config('app.name') }}</strong>
                     <div class="muted">Portal Vihara</div>
                 </div>
             </div>
