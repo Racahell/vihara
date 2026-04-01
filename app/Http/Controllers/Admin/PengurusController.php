@@ -11,7 +11,10 @@ class PengurusController extends Controller
     {
         $pengurus = User::with('roles')
             ->whereHas('roles', function ($query): void {
-                $query->whereIn('slug', ['superadmin', 'admin', 'owner', 'petugas']);
+                $query->whereIn('slug', ['admin', 'owner', 'petugas']);
+            })
+            ->whereDoesntHave('roles', function ($query): void {
+                $query->where('slug', 'superadmin');
             })
             ->latest()
             ->paginate(15);
@@ -21,4 +24,3 @@ class PengurusController extends Controller
         ]);
     }
 }
-

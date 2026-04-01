@@ -8,12 +8,16 @@ use App\Models\Activity;
 use App\Models\ActivityRegistration;
 use App\Models\Donation;
 use App\Models\DonationCategory;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class GuestHomeController extends Controller
 {
-    public function __invoke()
+    public function __invoke(Request $request)
     {
         $websiteSettings = app(WebsiteSettingController::class)->currentValues();
+        $guestSubmissionToken = (string) Str::uuid();
+        $request->session()->put('guest_donation_submission_token', $guestSubmissionToken);
 
         return view('guest', [
             'stats' => [
@@ -31,6 +35,7 @@ class GuestHomeController extends Controller
                 'title' => $websiteSettings['guest_about_title'],
                 'description' => $websiteSettings['guest_about_description'],
             ],
+            'guestDonationSubmissionToken' => $guestSubmissionToken,
         ]);
     }
 }

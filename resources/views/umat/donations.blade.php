@@ -5,8 +5,9 @@
     @if($canCreateDonation)
         <div class="card">
             <h3>Buat Donasi</h3>
-            <form action="{{ route('umat.donations.store') }}" method="POST" class="form-grid">
+            <form action="{{ route('umat.donations.store') }}" method="POST" class="form-grid" data-prevent-double-submit>
                 @csrf
+                <input type="hidden" name="submission_token" value="{{ $donationSubmissionToken ?? '' }}">
                 <div class="grid-2">
                     <div>
                         <label for="donation-category">Kategori Donasi</label>
@@ -34,11 +35,9 @@
                         <input id="donation-amount" type="number" name="amount" min="1000" placeholder="Contoh: 100000" required>
                     </div>
                     <div>
-                        <label for="donation-channel">Metode Transfer</label>
-                        <select id="donation-channel" name="payment_channel" required>
-                            <option value="bank_transfer">Transfer Rekening</option>
-                            <option value="qris">QRIS</option>
-                        </select>
+                        <label>Metode Pembayaran</label>
+                        <input type="text" value="Transfer Rekening (Manual)" readonly>
+                        <input type="hidden" name="payment_channel" value="bank_transfer">
                     </div>
                 </div>
 
@@ -73,7 +72,7 @@
                     <label for="donation-note">Catatan</label>
                     <input id="donation-note" type="text" name="note" placeholder="Catatan (opsional)">
                 </div>
-                <button type="submit">Buat Donasi &amp; Lihat Instruksi Transfer</button>
+                <button type="submit" data-submit-once>Buat Donasi &amp; Lihat Instruksi Transfer</button>
             </form>
         </div>
     @else

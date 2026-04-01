@@ -103,6 +103,7 @@ return [
             'title' => 'Menu Umat',
             'items' => [
                 ['label' => 'Beranda', 'route' => 'umat.dashboard'],
+                ['label' => 'Favorit', 'route' => 'umat.favorites'],
                 ['label' => 'Riwayat Saya', 'route' => 'umat.my-history'],
                 ['label' => 'Donasi', 'route' => 'umat.donations.index'],
                 ['label' => 'Profil Saya', 'route' => 'profile.show'],

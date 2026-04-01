@@ -290,6 +290,20 @@ const initAccessMatrix = () => {
     });
 };
 
+const initSingleSubmitForms = () => {
+    document.querySelectorAll('form[data-prevent-double-submit]').forEach((form) => {
+        form.addEventListener('submit', () => {
+            const submitButton = form.querySelector('[data-submit-once], button[type="submit"], input[type="submit"]');
+            if (!submitButton) return;
+
+            submitButton.setAttribute('disabled', 'disabled');
+            if (submitButton.tagName === 'BUTTON') {
+                submitButton.textContent = 'Memproses...';
+            }
+        });
+    });
+};
+
 const initProfileCrop = () => {
     document.querySelectorAll('[data-profile-crop]').forEach((form) => {
         const uploadInput = form.querySelector('[data-profile-photo-input]');
@@ -314,6 +328,9 @@ const initProfileCrop = () => {
 
         let cropper = null;
         let stream = null;
+        const showProfilePhotoError = (message) => {
+            window.alert(message);
+        };
 
         const openModal = () => {
             modal.classList.add('is-open');
@@ -368,6 +385,19 @@ const initProfileCrop = () => {
             reader.readAsDataURL(file);
         };
 
+        const openFilePicker = (useCameraCapture = false) => {
+            if (useCameraCapture) {
+                uploadInput.setAttribute('capture', 'user');
+                uploadInput.setAttribute('accept', 'image/*');
+            } else {
+                uploadInput.removeAttribute('capture');
+                uploadInput.setAttribute('accept', 'image/png,image/jpeg,image/webp,image/*');
+            }
+            // Reset value so selecting the same file still triggers `change`.
+            uploadInput.value = '';
+            uploadInput.click();
+        };
+
         const onFileChosen = (event) => {
             const file = event.target.files?.[0];
             if (!file) return;
@@ -405,13 +435,17 @@ const initProfileCrop = () => {
         openFileButtons.forEach((btn) => {
             btn.addEventListener('click', () => {
                 openModal();
-                uploadInput.click();
+                openFilePicker(false);
             });
         });
 
         const startCamera = async () => {
             openModal();
             destroyCropper();
+            if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
+                openFilePicker(true);
+                return;
+            }
             try {
                 stream = await navigator.mediaDevices.getUserMedia({
                     video: { facingMode: 'user' },
@@ -421,6 +455,8 @@ const initProfileCrop = () => {
                 cameraArea.hidden = false;
             } catch (error) {
                 cameraArea.hidden = true;
+                openFilePicker(true);
+                showProfilePhotoError('Kamera tidak dapat dibuka. Pastikan izin kamera aktif, lalu coba lagi.');
             }
         };
 
@@ -464,5 +500,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initModalHandlers();
     initTabs();
     initAccessMatrix();
+    initSingleSubmitForms();
     initProfileCrop();
 });

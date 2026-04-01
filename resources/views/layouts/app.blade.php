@@ -15,7 +15,7 @@
         <div class="brand">
             <div class="brand-head">
                 @if(!empty($websiteSettings['website_logo_path']))
-                    <img src="{{ asset('storage/' . $websiteSettings['website_logo_path']) }}" alt="Logo {{ $siteName ?? config('app.name') }}" class="brand-logo">
+                    <img src="{{ asset('storage/' . $websiteSettings['website_logo_path']) }}" alt="Logo {{ $siteName ?? config('app.name') }}" class="brand-logo" width="56" height="56">
                 @else
                     <span class="brand-logo-fallback" aria-hidden="true">
                         <svg viewBox="0 0 64 64" role="img">

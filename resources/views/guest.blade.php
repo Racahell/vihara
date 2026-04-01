@@ -136,10 +136,11 @@
             <div class="card guest-donation-card">
                 <div>
                     <h2>Donasi Sebagai Guest</h2>
-                    <p class="muted">Guest dapat berdonasi tanpa login. Pilih atas nama tertentu atau anonim, lalu transfer sesuai nominal ke rekening atau QR yang disediakan.</p>
+                    <p class="muted">Guest dapat berdonasi tanpa login. Pilih atas nama tertentu atau anonim, lalu transfer sesuai nominal ke rekening yang disediakan.</p>
                 </div>
-                <form action="{{ route('guest.donations.store') }}" method="POST" class="form-grid">
+                <form action="{{ route('guest.donations.store') }}" method="POST" class="form-grid" data-prevent-double-submit>
                     @csrf
+                    <input type="hidden" name="submission_token" value="{{ $guestDonationSubmissionToken ?? '' }}">
                     <div class="grid-2">
                         <div>
                             <label for="guest-category">Kategori Donasi</label>
@@ -158,11 +159,9 @@
 
                     <div class="grid-2">
                         <div>
-                            <label for="guest-channel">Metode Transfer</label>
-                            <select id="guest-channel" name="payment_channel" required>
-                                <option value="bank_transfer">Transfer Rekening</option>
-                                <option value="qris">QRIS</option>
-                            </select>
+                            <label>Metode Pembayaran</label>
+                            <input type="text" value="Transfer Rekening (Manual)" readonly>
+                            <input type="hidden" name="payment_channel" value="bank_transfer">
                         </div>
                         <div>
                             <label for="guest-donor-type">Atas Nama</label>
@@ -200,7 +199,7 @@
                         <input id="guest-note" type="text" name="note" placeholder="Contoh: Donasi untuk kegiatan sosial">
                     </div>
 
-                    <button class="btn btn-green" type="submit">Buat Donasi Guest</button>
+                    <button class="btn btn-green" type="submit" data-submit-once>Buat Donasi Guest</button>
                 </form>
             </div>
         </div>

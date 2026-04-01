@@ -17,6 +17,7 @@ return [
 
         'admin.activities.index' => 'kegiatan.view',
         'admin.activities.store' => 'kegiatan.create',
+        'umat.favorites' => 'kegiatan.view',
 
         'admin.registrations.index' => 'pendaftaran_kegiatan.view',
 

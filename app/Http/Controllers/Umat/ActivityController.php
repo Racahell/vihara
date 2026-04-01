@@ -98,8 +98,21 @@ class ActivityController extends Controller
 
     public function favorite(Request $request, Activity $activity)
     {
-        FavoriteActivity::firstOrCreate([
-            'user_id' => $request->user()->id,
+        $userId = (int) $request->user()->id;
+
+        $existing = FavoriteActivity::query()
+            ->where('user_id', $userId)
+            ->where('activity_id', (int) $activity->id)
+            ->first();
+
+        if ($existing) {
+            $existing->delete();
+
+            return back()->with('status', 'Kegiatan dihapus dari favorit.');
+        }
+
+        FavoriteActivity::create([
+            'user_id' => $userId,
             'activity_id' => $activity->id,
         ]);
 

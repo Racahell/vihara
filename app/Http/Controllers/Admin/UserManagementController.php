@@ -16,9 +16,13 @@ class UserManagementController extends Controller
 {
     public function index(Request $request)
     {
+        $this->ensureAdminCanCreateUsers();
+
+        $actor = $request->user();
+        $isSuperadmin = $actor?->hasRole('superadmin') ?? false;
         $isOwnerReadOnly = $request->user()?->hasRole('owner') ?? false;
-        $canCreateUser = $request->user()?->hasRole('superadmin') ?? false;
-        $canViewDeleted = $request->user()?->hasRole('superadmin') ?? false;
+        $canCreateUser = $request->user()?->hasPermission('data_user.create') ?? false;
+        $canViewDeleted = $isSuperadmin;
         $tab = (string) $request->query('tab', 'active');
         if (! in_array($tab, ['active', 'deleted'], true)) {
             $tab = 'active';
@@ -32,6 +36,11 @@ class UserManagementController extends Controller
         $q = trim((string) $request->query('q', ''));
 
         $users = User::with('roles')
+            ->when(! $isSuperadmin, function ($query): void {
+                $query->whereDoesntHave('roles', function ($roleQuery): void {
+                    $roleQuery->where('slug', 'superadmin');
+                });
+            })
             ->when($q !== '', function ($query) use ($q): void {
                 $query->where(function ($inner) use ($q): void {
                     $inner->where('name', 'like', '%' . $q . '%')
@@ -152,11 +161,15 @@ class UserManagementController extends Controller
 
     public function updateRole(Request $request, User $user, AuditLogService $auditLogService)
     {
+        $this->abortIfTargetIsSuperadminForNonSuperadmin($request, $user);
+
         return $this->update($request, $user, $auditLogService);
     }
 
     public function store(Request $request, AuditLogService $auditLogService)
     {
+        $this->ensureAdminCanCreateUsers();
+
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'username' => ['nullable', 'string', 'max:255', 'alpha_dash', 'unique:users,username'],
@@ -200,6 +213,8 @@ class UserManagementController extends Controller
 
     public function update(Request $request, User $user, AuditLogService $auditLogService)
     {
+        $this->abortIfTargetIsSuperadminForNonSuperadmin($request, $user);
+
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
@@ -232,6 +247,8 @@ class UserManagementController extends Controller
 
     public function destroy(Request $request, User $user, AuditLogService $auditLogService)
     {
+        $this->abortIfTargetIsSuperadminForNonSuperadmin($request, $user);
+
         if ((int) $request->user()->id === (int) $user->id) {
             return back()->withErrors(['user' => 'Akun aktif yang sedang digunakan tidak bisa dihapus.']);
         }
@@ -336,7 +353,7 @@ class UserManagementController extends Controller
         $defaultMap = [
             'admin' => [
                 'dashboard.view',
-                'data_user.view', 'data_user.edit', 'data_user.delete',
+                'data_user.view', 'data_user.create', 'data_user.edit', 'data_user.delete',
                 'pengurus.view',
                 'kegiatan.view', 'kegiatan.create', 'kegiatan.edit', 'kegiatan.delete',
                 'pendaftaran_kegiatan.view',
@@ -380,6 +397,37 @@ class UserManagementController extends Controller
             $effectiveSlugs = collect($allowedSlugs)->intersect($allPermissionSlugs)->values()->all();
             $permissionIds = Permission::whereIn('slug', $effectiveSlugs)->pluck('id')->all();
             $role->permissions()->sync($permissionIds);
+        }
+    }
+
+    private function ensureAdminCanCreateUsers(): void
+    {
+        $permission = Permission::firstOrCreate(
+            ['slug' => 'data_user.create'],
+            ['name' => 'Data User - CREATE']
+        );
+
+        $adminRole = Role::where('slug', 'admin')->first();
+        if (! $adminRole) {
+            return;
+        }
+
+        $adminRole->permissions()->syncWithoutDetaching([$permission->id]);
+    }
+
+    private function abortIfTargetIsSuperadminForNonSuperadmin(Request $request, User $target): void
+    {
+        $actor = $request->user();
+        if (! $actor) {
+            abort(403, 'Anda tidak memiliki hak akses untuk halaman ini.');
+        }
+
+        if ($actor->hasRole('superadmin')) {
+            return;
+        }
+
+        if ($target->hasRole('superadmin')) {
+            abort(403, 'Akun superadmin hanya dapat diakses oleh superadmin.');
         }
     }
 }

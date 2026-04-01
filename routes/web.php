@@ -57,6 +57,7 @@ Route::middleware(['auth', 'active'])->group(function () {
     });
 
     Route::middleware('role:superadmin,admin')->prefix('admin')->name('admin.')->group(function () {
+        Route::post('/users', [UserManagementController::class, 'store'])->middleware('permission:data_user.create')->name('users.store');
         Route::post('/users/{user}/role', [UserManagementController::class, 'updateRole'])->middleware('permission:data_user.edit')->name('users.update-role');
         Route::post('/users/{user}/update', [UserManagementController::class, 'update'])->middleware('permission:data_user.edit')->name('users.update');
         Route::delete('/users/{user}', [UserManagementController::class, 'destroy'])->middleware('permission:data_user.delete')->name('users.destroy');
@@ -68,7 +69,6 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::middleware('role:superadmin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/users/access', [UserManagementController::class, 'access'])->middleware('permission:hak_akses.view')->name('users.access');
         Route::post('/users/access', [UserManagementController::class, 'updateAccess'])->middleware('permission:hak_akses.edit')->name('users.access.update');
-        Route::post('/users', [UserManagementController::class, 'store'])->middleware('permission:data_user.create')->name('users.store');
         Route::post('/users/{userId}/restore', [UserManagementController::class, 'restore'])->middleware('permission:data_user.delete')->name('users.restore');
         Route::delete('/users/{userId}/force-delete', [UserManagementController::class, 'forceDelete'])->middleware('permission:data_user.delete')->name('users.force-delete');
         Route::get('/backup-restore', [BackupRestoreController::class, 'index'])->middleware('permission:backup_restore.view')->name('backup-restore.index');
@@ -130,6 +130,7 @@ Route::middleware(['auth', 'active'])->group(function () {
 
     Route::middleware('role:umat,superadmin,admin,owner')->prefix('umat')->name('umat.')->group(function () {
         Route::get('/dashboard', [ActivityController::class, 'index'])->name('dashboard');
+        Route::get('/favorites', [ActivityController::class, 'favorites'])->middleware('permission:kegiatan.view')->name('favorites');
         Route::get('/activities/{activity}', [ActivityController::class, 'show'])->name('activities.show');
         Route::post('/activities/{activity}/register', [ActivityController::class, 'register'])->name('activities.register');
         Route::post('/activities/{activity}/favorite', [ActivityController::class, 'favorite'])->name('activities.favorite');

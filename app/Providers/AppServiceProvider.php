@@ -154,10 +154,15 @@ class AppServiceProvider extends ServiceProvider
                 }
             }
 
+            $existingWebsiteSettings = $view->getData()['websiteSettings'] ?? [];
+            $websiteSettingsForView = is_array($existingWebsiteSettings)
+                ? array_merge($sharedWebsiteSettings, $existingWebsiteSettings)
+                : $sharedWebsiteSettings;
+
             $view->with('currentRoleSlug', $roleSlug);
             $view->with('sidebarMenuGroups', $menuGroups);
             $view->with('siteName', $siteName);
-            $view->with('websiteSettings', $sharedWebsiteSettings);
+            $view->with('websiteSettings', $websiteSettingsForView);
         });
     }
 }

@@ -8,8 +8,6 @@ use App\Models\Donation;
 use App\Models\DonationCategory;
 use App\Models\WebsiteSetting;
 use App\Services\AuditLogService;
-use App\Services\MidtransService;
-use App\Services\QrCodeService;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -17,23 +15,23 @@ use Illuminate\Support\Str;
 
 class DonationController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
         $isOwnerReadOnly = $user?->hasRole('owner') ?? false;
+        $submissionToken = (string) Str::uuid();
+        $request->session()->put('user_donation_submission_token', $submissionToken);
         $perPage = 5;
         $myDonations = Donation::where('user_id', auth()->id())
             ->latest()
             ->paginate($perPage, ['*'], 'my_page')
             ->withQueryString();
-        $myDonations->each(fn (Donation $donation) => $this->expireTimedOutQrisTransaction($donation));
 
         $monitorDonations = $isOwnerReadOnly
             ? Donation::latest('donated_at')
                 ->paginate($perPage, ['*'], 'monitor_page')
                 ->withQueryString()
             : collect();
-        $monitorDonations->each(fn (Donation $donation) => $this->expireTimedOutQrisTransaction($donation));
 
         return view('umat.donations', [
             'categories' => DonationCategory::where('is_active', true)->get(),
@@ -43,26 +41,31 @@ class DonationController extends Controller
             'canCreateDonation' => $user?->hasAnyRole(['umat', 'superadmin', 'admin']) ?? false,
             'isOwnerReadOnly' => $isOwnerReadOnly,
             'donationBank' => $this->donationBankConfig(),
+            'donationSubmissionToken' => $submissionToken,
         ]);
     }
 
-    public function store(Request $request, QrCodeService $qrCodeService, AuditLogService $auditLogService, MidtransService $midtransService)
+    public function store(Request $request, AuditLogService $auditLogService)
     {
+        $this->ensureSingleSubmission($request, 'user_donation_submission_token');
+
         $user = $request->user();
         $data = $this->validateDonationRequest($request, $user?->name, $user?->email, $user?->phone);
-        $donation = $this->createDonation($request, $data, $user?->id, $midtransService);
+        $donation = $this->createDonation($data, $user?->id);
 
         $auditLogService->record($request, 'create_donation', 'Donasi dibuat #' . $donation->id, 'donations', $donation->id);
 
-        return $this->renderInstructionView($donation, $qrCodeService, false);
+        return $this->renderInstructionView($donation, false);
     }
 
-    public function storeGuest(Request $request, QrCodeService $qrCodeService, MidtransService $midtransService)
+    public function storeGuest(Request $request)
     {
-        $data = $this->validateDonationRequest($request);
-        $donation = $this->createDonation($request, $data, null, $midtransService);
+        $this->ensureSingleSubmission($request, 'guest_donation_submission_token');
 
-        return $this->renderInstructionView($donation, $qrCodeService, true);
+        $data = $this->validateDonationRequest($request);
+        $donation = $this->createDonation($data, null);
+
+        return $this->renderInstructionView($donation, true);
     }
 
     public function uploadProof(Request $request, Donation $donation, AuditLogService $auditLogService)
@@ -115,14 +118,11 @@ class DonationController extends Controller
         return back()->with('status', 'Bukti transfer guest berhasil diunggah. Menunggu verifikasi admin.');
     }
 
-    public function pay(Request $request, Donation $donation, QrCodeService $qrCodeService)
+    public function pay(Request $request, Donation $donation)
     {
         $user = $request->user();
         $canOpen = ((int) $donation->user_id === (int) $user->id) || $user->hasAnyRole(['superadmin', 'admin']);
         abort_unless($canOpen, 403);
-
-        $this->expireTimedOutQrisTransaction($donation);
-        $donation->refresh();
 
         $isPendingPayment = strtolower((string) $donation->payment_status) === 'pending';
         $isPendingVerification = strtolower((string) $donation->verification_status) === 'pending';
@@ -130,7 +130,7 @@ class DonationController extends Controller
             return back()->withErrors(['donation' => 'Transaksi tidak dapat dilanjutkan. Status saat ini: ' . strtoupper((string) $donation->payment_status) . '.']);
         }
 
-        return $this->renderInstructionView($donation, $qrCodeService, false);
+        return $this->renderInstructionView($donation, false);
     }
 
     private function validateDonationRequest(Request $request, ?string $defaultName = null, ?string $defaultEmail = null, ?string $defaultPhone = null): array
@@ -140,12 +140,12 @@ class DonationController extends Controller
             'activity_id' => ['nullable', 'exists:activities,id'],
             'amount' => ['required', 'integer', 'min:1000'],
             'note' => ['nullable', 'string', 'max:255'],
-            'payment_channel' => ['required', 'in:bank_transfer,qris'],
             'donor_type' => ['required', 'in:named,anonymous'],
             'donor_name' => ['nullable', 'string', 'max:255'],
             'donor_email' => ['nullable', 'email', 'max:255'],
             'donor_phone' => ['nullable', 'string', 'max:32'],
         ]);
+        $validated['payment_channel'] = 'bank_transfer';
 
         if ($validated['donor_type'] === 'named' && empty($validated['donor_name']) && empty($defaultName)) {
             throw \Illuminate\Validation\ValidationException::withMessages([
@@ -162,19 +162,10 @@ class DonationController extends Controller
         return $validated;
     }
 
-    private function createDonation(Request $request, array $data, ?int $userId, MidtransService $midtransService): Donation
+    private function createDonation(array $data, ?int $userId): Donation
     {
         $bank = $this->donationBankConfig();
         $channel = (string) $data['payment_channel'];
-        $midtrans = null;
-        if ($channel === 'qris') {
-            $midtrans = $midtransService->createQrisTransaction([
-                'amount' => $data['amount'],
-                'donor_name' => $data['donor_name'],
-                'donor_email' => $data['donor_email'] ?? null,
-                'donor_phone' => $data['donor_phone'] ?? null,
-            ]);
-        }
 
         return Donation::create([
             'user_id' => $userId,
@@ -185,10 +176,10 @@ class DonationController extends Controller
             'donor_phone' => $data['donor_phone'] ?? null,
             'amount' => $data['amount'],
             'note' => $data['note'] ?? null,
-            'payment_method' => $channel === 'qris' ? 'midtrans' : 'transfer',
-            'payment_status' => ($midtrans && $midtrans['status'] === 'failed') ? 'failed' : 'pending',
+            'payment_method' => 'transfer',
+            'payment_status' => 'pending',
             'verification_status' => 'pending',
-            'midtrans_order_id' => $midtrans['order_id'] ?? null,
+            'midtrans_order_id' => null,
             'payment_payload' => [
                 'channel' => $channel,
                 'donor_type' => $data['donor_type'],
@@ -196,58 +187,21 @@ class DonationController extends Controller
                 'account_number' => $bank['account_number'],
                 'account_holder' => $bank['account_holder'],
                 'verification_key' => (string) Str::uuid(),
-                'qris_payload' => $midtrans['qr_string'] ?? null,
-                'qris_image' => $midtrans['qr_image'] ?? null,
-                'qris_expired_at' => $midtrans['expired_at'] ?? null,
-                'gateway_status' => $midtrans['status'] ?? null,
-                'gateway_payload' => $midtrans['payload'] ?? null,
             ],
             'bank_transfer_proof_path' => null,
             'donated_at' => now(),
         ]);
     }
 
-    private function renderInstructionView(Donation $donation, QrCodeService $qrCodeService, bool $isGuest)
+    private function renderInstructionView(Donation $donation, bool $isGuest)
     {
         $channel = (string) data_get($donation->payment_payload, 'channel', 'bank_transfer');
-        $qrPayload = $channel === 'qris'
-            ? (string) data_get($donation->payment_payload, 'qris_payload', '')
-            : 'TRANSFER|' . $donation->id . '|' . $donation->amount;
-        $qrDataUri = null;
-        $qrisImage = null;
-        $qrisExpiredAt = (string) data_get($donation->payment_payload, 'qris_expired_at', '');
-
-        if ($channel === 'qris') {
-            $qrisImage = (string) data_get($donation->payment_payload, 'qris_image', '');
-            if ($qrisImage === '' && $qrPayload === '') {
-                // Fallback QR saat gateway tidak mengembalikan payload/image (misalnya mode simulasi).
-                $qrPayload = 'SIMULATED-QRIS|' . $donation->id . '|' . $donation->amount . '|' . ($donation->donor_name ?? 'DONOR');
-            }
-
-            if ($qrisImage === '' && $qrPayload !== '') {
-                try {
-                    $qrDataUri = $qrCodeService->dataUri($qrPayload, 300, 8);
-                } catch (\Throwable) {
-                    $qrDataUri = null;
-                }
-            }
-        } else {
-            try {
-                $qrDataUri = $qrCodeService->dataUri($qrPayload, 300, 8);
-            } catch (\Throwable) {
-                $qrDataUri = null;
-            }
-        }
 
         return view($isGuest ? 'donations.transfer-instruction-guest' : 'donations.transfer-instruction', [
             'donation' => $donation,
             'isGuest' => $isGuest,
             'bank' => $this->donationBankConfig(),
             'transferChannel' => $channel,
-            'qrDataUri' => $qrDataUri,
-            'qrPayload' => $qrPayload,
-            'qrisImage' => $qrisImage,
-            'qrisExpiredAt' => $qrisExpiredAt,
             'verificationKey' => (string) data_get($donation->payment_payload, 'verification_key', ''),
         ]);
     }
@@ -270,23 +224,18 @@ class DonationController extends Controller
         ];
     }
 
-    private function expireTimedOutQrisTransaction(Donation $donation): void
+    private function ensureSingleSubmission(Request $request, string $sessionKey): void
     {
-        $channel = strtolower((string) data_get($donation->payment_payload, 'channel', ''));
-        $paymentStatus = strtolower((string) $donation->payment_status);
-        if ($channel !== 'qris' || $paymentStatus !== 'pending') {
-            return;
-        }
+        $token = (string) $request->input('submission_token', '');
+        $sessionToken = (string) $request->session()->get($sessionKey, '');
 
-        $baseTime = $donation->donated_at ?? $donation->created_at;
-        if (! $baseTime) {
-            return;
-        }
-
-        if (now()->greaterThan($baseTime->copy()->addMinutes(15))) {
-            $donation->update([
-                'payment_status' => 'failed',
+        if ($token === '' || $sessionToken === '' || ! hash_equals($sessionToken, $token)) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'donation' => 'Permintaan donasi terdeteksi duplikat. Silakan muat ulang halaman donasi lalu kirim sekali lagi.',
             ]);
         }
+
+        $request->session()->forget($sessionKey);
     }
+
 }

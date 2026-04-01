@@ -26,7 +26,7 @@
                         <button type="button" class="btn btn-primary" data-profile-open-camera>Buka Kamera</button>
                     </div>
                     <small class="muted">Upload file biasa atau ambil foto langsung dari kamera. Setelah itu crop 1:1 dan simpan.</small>
-                    <input id="profile_photo" type="file" name="profile_photo" accept="image/png,image/jpeg,image/webp" data-profile-photo-input hidden>
+                    <input id="profile_photo" type="file" name="profile_photo" accept="image/png,image/jpeg,image/webp,image/*" data-profile-photo-input hidden>
                     <input type="hidden" name="profile_photo_cropped" data-profile-cropped>
                 </div>
             </div>

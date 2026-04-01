@@ -223,7 +223,7 @@
             <div class="modal-header">
                 <div>
                     <h3>Tambah User Baru</h3>
-                    <div class="muted">Hanya superadmin yang dapat menambahkan user baru.</div>
+                    <div class="muted">Pengguna dengan hak akses Data User - Create dapat menambahkan user baru.</div>
                 </div>
                 <button type="button" class="btn btn-secondary" data-modal-close="create-user-modal">Tutup</button>
             </div>
