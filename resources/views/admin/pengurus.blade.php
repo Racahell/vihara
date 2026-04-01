@@ -6,6 +6,18 @@
     <p class="muted">Daftar pengurus vihara (view-only).</p>
 </div>
 
+<div class="table-toolbar" style="margin-top:12px;">
+    <div class="muted">Total data: {{ $pengurus->total() }}</div>
+    <form method="GET" class="table-length">
+        <label for="pengurus-per-page">Tampilkan</label>
+        <select id="pengurus-per-page" name="per_page" onchange="this.form.submit()">
+            @foreach([10, 25, 50, 100] as $size)
+                <option value="{{ $size }}" @selected((int) ($perPage ?? 10) === $size)>{{ $size }}</option>
+            @endforeach
+        </select>
+    </form>
+</div>
+
 <div class="table-wrap" style="margin-top:12px;">
     <table>
         <thead>
@@ -42,4 +54,3 @@
 
 {{ $pengurus->links() }}
 @endsection
-

@@ -18,7 +18,7 @@
 </head>
 <body>
     <div class="head">
-        <div class="title">Laporan Donasi Resmi - Vihara</div>
+        <div class="title">Laporan Penerimaan dan Penggunaan Dana Donasi</div>
         <div class="meta">Tanggal cetak: {{ $printedAt->format('d-m-Y H:i') }}</div>
         <div class="meta">Periode: {{ $period['start'] ?: '-' }} s/d {{ $period['end'] ?: '-' }}</div>
     </div>
@@ -55,9 +55,14 @@
     </table>
 
     <div class="summary">
-        <div><strong>Total Donasi Masuk:</strong> Rp {{ number_format($summary['total_masuk'], 0, ',', '.') }}</div>
-        <div><strong>Donasi Terverifikasi:</strong> Rp {{ number_format($summary['total_terverifikasi'], 0, ',', '.') }}</div>
+        <div><strong>Saldo Awal:</strong> Rp {{ number_format($ledger['saldo_awal'], 0, ',', '.') }}</div>
+        <div><strong>Total Penerimaan:</strong> Rp {{ number_format($ledger['total_penerimaan'], 0, ',', '.') }}</div>
+        <div><strong>Total Penyaluran:</strong> Rp {{ number_format($ledger['total_penyaluran'], 0, ',', '.') }}</div>
+        <div><strong>Total Operasional:</strong> Rp {{ number_format($ledger['total_operasional'], 0, ',', '.') }}</div>
+        <div><strong>Surplus / (Defisit):</strong> Rp {{ number_format($ledger['surplus_defisit'], 0, ',', '.') }}</div>
+        <div><strong>Saldo Akhir:</strong> Rp {{ number_format($ledger['saldo_akhir'], 0, ',', '.') }}</div>
         <div><strong>Donasi Pending:</strong> Rp {{ number_format($summary['total_pending'], 0, ',', '.') }}</div>
+        <div><strong>Donasi Ditolak:</strong> Rp {{ number_format($summary['total_ditolak'], 0, ',', '.') }}</div>
     </div>
 
     <table class="sign">

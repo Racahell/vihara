@@ -4,6 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $websiteSettings['website_name'] }} - Guest</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     @if(!empty($websiteSettings['website_favicon_path']))
         <link rel="icon" href="{{ asset('storage/' . $websiteSettings['website_favicon_path']) }}">
     @endif
@@ -19,13 +22,7 @@
                 @else
                     <span class="guest-brand-logo" aria-hidden="true">
                         <svg viewBox="0 0 64 64" role="img">
-                            <defs>
-                                <linearGradient id="viharaLogoGrad" x1="0" x2="1" y1="0" y2="1">
-                                    <stop offset="0%" stop-color="#14b8a6"/>
-                                    <stop offset="100%" stop-color="#0f766e"/>
-                                </linearGradient>
-                            </defs>
-                            <rect x="2" y="2" width="60" height="60" rx="18" fill="url(#viharaLogoGrad)"/>
+                            <rect x="2" y="2" width="60" height="60" rx="18" fill="#8a6f47"/>
                             <path d="M13 41c7-8 14-12 23-12s17 4 25 12H13z" fill="#e6fffa"/>
                             <path d="M32 14c3 4 5 8 5 12a5 5 0 1 1-10 0c0-4 2-8 5-12z" fill="#ffffff"/>
                         </svg>
@@ -33,7 +30,6 @@
                 @endif
                 <span class="guest-brand-copy">
                     <strong>{{ $websiteSettings['website_name'] }}</strong>
-                    <span>Perahu &amp; Teratai</span>
                 </span>
             </a>
             <nav class="guest-links">
@@ -60,7 +56,7 @@
                     <div class="alert alert-error" style="margin-top:10px;">{{ $errors->first() }}</div>
                 @endif
                 <div class="auth-action-row" style="margin-top:14px;">
-                    <a class="btn btn-green" href="{{ route('register') }}">Daftar Sekarang</a>
+                    <a class="btn btn-primary" href="{{ route('register') }}">Daftar Sekarang</a>
                     <a class="btn btn-secondary" href="{{ route('login') }}">Login</a>
                 </div>
                 <div class="guest-stats">
@@ -199,7 +195,7 @@
                         <input id="guest-note" type="text" name="note" placeholder="Contoh: Donasi untuk kegiatan sosial">
                     </div>
 
-                    <button class="btn btn-green" type="submit" data-submit-once>Buat Donasi Guest</button>
+                    <button class="btn btn-primary" type="submit" data-submit-once>Buat Donasi Guest</button>
                 </form>
             </div>
         </div>

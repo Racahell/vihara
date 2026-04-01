@@ -23,11 +23,13 @@ class CheckInController extends Controller
     {
         $selectedDate = (string) $request->input('log_date', now()->toDateString());
         $selectedActivityId = $request->filled('log_activity_id') ? $request->integer('log_activity_id') : null;
+        $perPage = (int) $request->integer('per_page', 10);
+        $perPage = in_array($perPage, [10, 25, 50, 100], true) ? $perPage : 10;
 
         $logsQuery = AttendanceLog::query()
             ->with([
-                'registration:id,registration_code,participant_name',
-                'activity:id,title,start_at',
+                'registration:id,registration_code,participant_name,participant_phone,participant_age,participant_gender,participant_address,registration_type',
+                'activity:id,title,location,start_at,end_at',
                 'handler:id,name',
             ])
             ->whereDate('checked_in_at', $selectedDate);
@@ -36,13 +38,14 @@ class CheckInController extends Controller
             $logsQuery->where('activity_id', $selectedActivityId);
         }
 
-        $todayLogs = $logsQuery->latest('checked_in_at')->paginate(50)->withQueryString();
+        $todayLogs = $logsQuery->latest('checked_in_at')->paginate($perPage)->withQueryString();
 
         return view('shared.attendance', [
             'todayLogs' => $todayLogs,
             'activities' => Activity::where('is_active', true)->orderBy('start_at')->get(),
             'selectedLogDate' => $selectedDate,
             'selectedLogActivityId' => $selectedActivityId,
+            'perPage' => $perPage,
         ]);
     }
 
@@ -148,7 +151,9 @@ class CheckInController extends Controller
     {
         $now = now();
         $startAt = $activity->start_at;
-        $endAt = $activity->end_at ?: ($startAt ? $startAt->copy()->addHours(4) : null);
+        // If end_at is not set, allow check-in for a 6-hour window from start_at
+        // (e.g. 09:00 -> 15:00).
+        $endAt = $activity->end_at ?: ($startAt ? $startAt->copy()->addHours(6) : null);
 
         if ($startAt && $now->lt($startAt)) {
             return back()->withErrors([

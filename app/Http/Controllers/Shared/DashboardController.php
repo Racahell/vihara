@@ -7,7 +7,6 @@ use App\Models\Activity;
 use App\Models\ActivityRegistration;
 use App\Models\AttendanceLog;
 use App\Models\Donation;
-use App\Models\DonationCategory;
 use App\Models\User;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\DB;
@@ -63,6 +62,7 @@ class DashboardController extends Controller
 
         $monthlyDonations = collect();
         $categoryBreakdown = collect();
+        $recentApprovedDonations = collect();
         $petugasDailyLabels = collect();
         $petugasDailyValues = collect();
         $petugasMethodLabels = collect();
@@ -77,19 +77,28 @@ class DashboardController extends Controller
                 ->where('verification_status', 'approved')
                 ->whereNotNull('donated_at')
                 ->groupBy('month_key')
-                ->orderBy('month_key')
+                ->orderByDesc('month_key')
                 ->limit(12)
-                ->get();
+                ->get()
+                ->sortBy('month_key')
+                ->values();
 
-            $categoryBreakdown = DonationCategory::query()
-                ->leftJoin('donations', function ($join): void {
-                    $join->on('donation_categories.id', '=', 'donations.donation_category_id')
-                        ->where('donations.verification_status', '=', 'approved');
-                })
-                ->select('donation_categories.name', DB::raw('COALESCE(SUM(donations.amount), 0) as total'))
-                ->groupBy('donation_categories.id', 'donation_categories.name')
-                ->orderBy('donation_categories.name')
-                ->get();
+            $categoryBreakdown = Donation::query()
+                ->with('category')
+                ->where('verification_status', 'approved')
+                ->get()
+                ->groupBy(fn ($item) => $item->category?->name ?? 'Tanpa Kategori')
+                ->map(fn ($items) => (int) $items->sum('amount'))
+                ->sortKeys()
+                ->map(fn ($total, $name) => (object) ['name' => $name, 'total' => $total])
+                ->values();
+
+            $recentApprovedDonations = Donation::query()
+                ->where('verification_status', 'approved')
+                ->whereNotNull('donated_at')
+                ->latest('donated_at')
+                ->limit(5)
+                ->get(['id', 'donor_name', 'amount', 'donated_at']);
         }
 
         if ($isPetugas) {
@@ -132,6 +141,7 @@ class DashboardController extends Controller
             'monthlyDonationValues' => $monthlyDonations->pluck('total'),
             'categoryLabels' => $categoryBreakdown->pluck('name'),
             'categoryValues' => $categoryBreakdown->pluck('total'),
+            'recentApprovedDonations' => $recentApprovedDonations,
             'canSeeIncomeReport' => $canSeeIncomeReport,
             'canSeeDonationWidgets' => $canSeeDonationWidgets,
             'isPetugas' => $isPetugas,

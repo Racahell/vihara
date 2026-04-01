@@ -15,7 +15,15 @@ const parseQrPayload = (raw) => {
 
 const initDashboardCharts = () => {
     const charts = new Map();
-    const palette = ['#f7b8d2', '#aee3bd', '#ffdca8', '#cde4ff', '#d9c5f3', '#f9a8d4', '#86efac'];
+    const palette = ['#B3A07F', '#D3C6AE', '#8f7c5d', '#c5b392', '#9e8a69', '#F7EFE1', '#a79272', '#bda987'];
+    const formatNumber = (value, unit) => {
+        const safeValue = Number(value || 0);
+        if (unit === 'currency') {
+            return `Rp ${safeValue.toLocaleString('id-ID')}`;
+        }
+
+        return safeValue.toLocaleString('id-ID');
+    };
 
     const buildChart = (el, type) => {
         const labels = JSON.parse(el.dataset.labels || '[]');
@@ -37,8 +45,12 @@ const initDashboardCharts = () => {
             ? {
                 label: datasetLabel,
                 data: values,
-                borderColor: '#f08bb2',
-                backgroundColor: palette,
+                borderColor: '#B3A07F',
+                backgroundColor: configType === 'line' ? 'rgba(179, 160, 127, 0.24)' : palette,
+                pointBackgroundColor: '#B3A07F',
+                pointHoverBackgroundColor: '#B3A07F',
+                pointRadius: 4,
+                pointHoverRadius: 6,
                 tension: 0.35,
                 fill: configType === 'line',
             }
@@ -48,31 +60,69 @@ const initDashboardCharts = () => {
                 backgroundColor: palette,
                 borderColor: '#ffffff',
                 borderWidth: 1,
+                hoverOffset: 8,
             };
 
         const cartesianTypes = ['line', 'bar'];
         const options = {
             responsive: true,
             maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
             plugins: {
                 legend: {
                     display: true,
+                    position: 'bottom',
+                    labels: {
+                        usePointStyle: true,
+                        boxWidth: 10,
+                    },
+                },
+                tooltip: {
+                    callbacks: {
+                        label: (context) => {
+                            const raw = Number(context.raw || 0);
+                            const data = context.dataset?.data || [];
+                            const total = Array.isArray(data)
+                                ? data.reduce((sum, item) => sum + Number(item || 0), 0)
+                                : 0;
+                            const percent = total > 0 ? ((raw / total) * 100).toFixed(1) : '0.0';
+                            const formatted = formatNumber(raw, unit);
+
+                            return `${context.label}: ${formatted} (${percent}%)`;
+                        },
+                    },
                 },
             },
         };
 
         if (cartesianTypes.includes(configType)) {
+            const maxValue = Math.max(...values.map((v) => Number(v || 0)));
             options.scales = {
+                x: {
+                    grid: {
+                        display: false,
+                    },
+                },
                 y: {
                     beginAtZero: true,
+                    suggestedMax: maxValue > 0 ? Math.ceil(maxValue * 1.15) : undefined,
+                    grid: {
+                        color: '#D3C6AE',
+                    },
                     ticks: {
                         callback: (v) => {
-                            const val = Number(v).toLocaleString('id-ID');
-                            return unit === 'currency' ? `Rp ${val}` : val;
+                            return formatNumber(v, unit);
                         },
                     },
                 },
             };
+        }
+
+        if (configType === 'doughnut') {
+            options.cutout = '56%';
         }
 
         const instance = new Chart(el, {
@@ -304,6 +354,57 @@ const initSingleSubmitForms = () => {
     });
 };
 
+const initMapLocationButtons = () => {
+    const buildSearchUrl = (destination) => {
+        const query = encodeURIComponent(destination.trim());
+        return `https://www.google.com/maps/search/?api=1&query=${query}`;
+    };
+
+    document.querySelectorAll('[data-map-search]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const destination = (btn.dataset.destination || '').trim();
+            if (!destination) {
+                window.alert('Lokasi kegiatan belum tersedia.');
+                return;
+            }
+            window.open(buildSearchUrl(destination), '_blank', 'noopener');
+        });
+    });
+
+    document.querySelectorAll('[data-map-route]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const destination = (btn.dataset.destination || '').trim();
+            if (!destination) {
+                window.alert('Lokasi kegiatan belum tersedia.');
+                return;
+            }
+
+            if (!navigator.geolocation) {
+                window.open(buildSearchUrl(destination), '_blank', 'noopener');
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const origin = `${position.coords.latitude},${position.coords.longitude}`;
+                    const destinationQuery = encodeURIComponent(destination);
+                    const url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destinationQuery}&travelmode=driving`;
+                    window.open(url, '_blank', 'noopener');
+                },
+                () => {
+                    window.alert('Izin lokasi ditolak atau gagal didapatkan. Membuka peta lokasi kegiatan.');
+                    window.open(buildSearchUrl(destination), '_blank', 'noopener');
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0,
+                }
+            );
+        });
+    });
+};
+
 const initProfileCrop = () => {
     document.querySelectorAll('[data-profile-crop]').forEach((form) => {
         const uploadInput = form.querySelector('[data-profile-photo-input]');
@@ -501,5 +602,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initTabs();
     initAccessMatrix();
     initSingleSubmitForms();
+    initMapLocationButtons();
     initProfileCrop();
 });

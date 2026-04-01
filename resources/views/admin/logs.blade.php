@@ -7,15 +7,26 @@
 </div>
 
 <div class="card" style="margin-top:16px;">
-    <div class="tabs">
-        <a href="{{ route('admin.logs.index', ['tab' => 'activity']) }}" class="tab {{ $tab === 'activity' ? 'active' : '' }}">Log Aktivitas</a>
-        <a href="{{ route('admin.logs.index', ['tab' => 'login']) }}" class="tab {{ $tab === 'login' ? 'active' : '' }}">Log Login</a>
-        @if(in_array('discord', $allowedTabs ?? [], true))
-            <a href="{{ route('admin.logs.index', ['tab' => 'discord']) }}" class="tab {{ $tab === 'discord' ? 'active' : '' }}">Log Discord</a>
-        @endif
-        @if(in_array('error', $allowedTabs ?? [], true))
-            <a href="{{ route('admin.logs.index', ['tab' => 'error']) }}" class="tab {{ $tab === 'error' ? 'active' : '' }}">Log Error</a>
-        @endif
+    <div class="table-toolbar" style="margin:0;">
+        <div class="tabs">
+            <a href="{{ route('admin.logs.index', ['tab' => 'activity', 'per_page' => $perPage ?? 25]) }}" class="tab {{ $tab === 'activity' ? 'active' : '' }}">Log Aktivitas</a>
+            <a href="{{ route('admin.logs.index', ['tab' => 'login', 'per_page' => $perPage ?? 25]) }}" class="tab {{ $tab === 'login' ? 'active' : '' }}">Log Login</a>
+            @if(in_array('discord', $allowedTabs ?? [], true))
+                <a href="{{ route('admin.logs.index', ['tab' => 'discord', 'per_page' => $perPage ?? 25]) }}" class="tab {{ $tab === 'discord' ? 'active' : '' }}">Log Discord</a>
+            @endif
+            @if(in_array('error', $allowedTabs ?? [], true))
+                <a href="{{ route('admin.logs.index', ['tab' => 'error', 'per_page' => $perPage ?? 25]) }}" class="tab {{ $tab === 'error' ? 'active' : '' }}">Log Error</a>
+            @endif
+        </div>
+        <form method="GET" class="table-length">
+            <input type="hidden" name="tab" value="{{ $tab }}">
+            <label for="logs-per-page">Tampilkan</label>
+            <select id="logs-per-page" name="per_page" onchange="this.form.submit()">
+                @foreach([10, 25, 50, 100] as $size)
+                    <option value="{{ $size }}" @selected((int) ($perPage ?? 25) === $size)>{{ $size }}</option>
+                @endforeach
+            </select>
+        </form>
     </div>
 </div>
 
@@ -25,7 +36,7 @@
     </p>
     <div class="table-wrap" style="margin-top:12px;">
         <table>
-            <thead><tr><th>Waktu</th><th>User</th><th>Aksi</th><th>Deskripsi</th><th>Target</th></tr></thead>
+            <thead><tr><th>Waktu</th><th>User</th><th>Aksi</th><th>Deskripsi</th><th>Target</th><th>Google Maps</th></tr></thead>
             <tbody>
             @forelse($activityLogs as $log)
                 <tr>
@@ -34,9 +45,22 @@
                     <td>{{ $log->action }}</td>
                     <td>{{ $log->description }}</td>
                     <td>{{ $log->target_type }}#{{ $log->target_id }}</td>
+                    <td>
+                        @if($log->ip_address)
+                            <a
+                                class="btn btn-outline"
+                                href="https://www.google.com/maps/search/?api=1&query={{ urlencode((string) $log->ip_address) }}"
+                                target="_blank"
+                                rel="noopener">
+                                Lihat Google Maps
+                            </a>
+                        @else
+                            <span class="muted">IP tidak ada</span>
+                        @endif
+                    </td>
                 </tr>
             @empty
-                <tr><td colspan="5">Belum ada log aktivitas.</td></tr>
+                <tr><td colspan="6">Belum ada log aktivitas.</td></tr>
             @endforelse
             </tbody>
         </table>

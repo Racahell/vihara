@@ -29,11 +29,22 @@
 </div>
 
 <div class="card" style="margin-top:14px;">
-    <div class="tabs">
-        <a href="{{ route('admin.activities.index', ['tab' => 'active']) }}" class="tab {{ $tab === 'active' ? 'active' : '' }}">Kegiatan Aktif</a>
-        @if($canViewDeleted ?? false)
-            <a href="{{ route('admin.activities.index', ['tab' => 'deleted']) }}" class="tab {{ $tab === 'deleted' ? 'active' : '' }}">Deleted</a>
-        @endif
+    <div class="table-toolbar" style="margin:0;">
+        <div class="tabs">
+            <a href="{{ route('admin.activities.index', ['tab' => 'active', 'per_page' => $perPage ?? 10]) }}" class="tab {{ $tab === 'active' ? 'active' : '' }}">Kegiatan Aktif</a>
+            @if($canViewDeleted ?? false)
+                <a href="{{ route('admin.activities.index', ['tab' => 'deleted', 'per_page' => $perPage ?? 10]) }}" class="tab {{ $tab === 'deleted' ? 'active' : '' }}">Deleted</a>
+            @endif
+        </div>
+        <form method="GET" class="table-length">
+            <input type="hidden" name="tab" value="{{ $tab }}">
+            <label for="activities-per-page">Tampilkan</label>
+            <select id="activities-per-page" name="per_page" onchange="this.form.submit()">
+                @foreach([10, 25, 50, 100] as $size)
+                    <option value="{{ $size }}" @selected((int) ($perPage ?? 10) === $size)>{{ $size }}</option>
+                @endforeach
+            </select>
+        </form>
     </div>
 </div>
 

@@ -1,6 +1,17 @@
 @extends('layouts.app')
 @section('title', 'Verifikasi Donasi')
 @section('content')
+<div class="table-toolbar" style="margin:0 0 10px 0;">
+    <h3 style="margin:0;">Daftar Verifikasi Donasi</h3>
+    <form method="GET" class="table-length">
+        <label for="donation-verification-per-page">Tampilkan</label>
+        <select id="donation-verification-per-page" name="per_page" onchange="this.form.submit()">
+            @foreach([10, 25, 50, 100] as $size)
+                <option value="{{ $size }}" @selected((int) ($perPage ?? 10) === $size)>{{ $size }}</option>
+            @endforeach
+        </select>
+    </form>
+</div>
 <div class="table-wrap">
 <table>
     <thead><tr><th>ID</th><th>Donatur</th><th>Nominal</th><th>Pembayaran</th><th>Bukti</th><th>Verifikasi</th><th>Aksi</th></tr></thead>

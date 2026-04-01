@@ -15,6 +15,8 @@ class LogController extends Controller
     public function index(Request $request)
     {
         $roleSlug = (string) $request->user()?->roles()->value('slug');
+        $perPage = (int) $request->integer('per_page', 25);
+        $perPage = in_array($perPage, [10, 25, 50, 100], true) ? $perPage : 25;
         $allowedTabs = $roleSlug === 'superadmin'
             ? ['activity', 'login', 'discord', 'error']
             : ['activity', 'login'];
@@ -24,18 +26,23 @@ class LogController extends Controller
             $tab = 'activity';
         }
 
-        $activityLogs = $tab === 'activity' ? ActivityLog::latest()->paginate(25, ['*'], 'activity_page') : null;
-        $loginLogs = $tab === 'login' ? LoginLog::latest('logged_in_at')->paginate(25, ['*'], 'login_page') : null;
+        $activityLogs = $tab === 'activity'
+            ? ActivityLog::latest()->paginate($perPage, ['*'], 'activity_page')->withQueryString()
+            : null;
+        $loginLogs = $tab === 'login'
+            ? LoginLog::latest('logged_in_at')->paginate($perPage, ['*'], 'login_page')->withQueryString()
+            : null;
         $discordLogs = in_array('discord', $allowedTabs, true) && $tab === 'discord'
-            ? DiscordLog::latest('created_at')->paginate(25, ['*'], 'discord_page')
+            ? DiscordLog::latest('created_at')->paginate($perPage, ['*'], 'discord_page')->withQueryString()
             : null;
         $errorLogs = in_array('error', $allowedTabs, true) && $tab === 'error'
-            ? $this->readErrorLogs($request)
+            ? $this->readErrorLogs($request, $perPage)
             : null;
 
         return view('admin.logs', [
             'tab' => $tab,
             'allowedTabs' => $allowedTabs,
+            'perPage' => $perPage,
             'activityLogs' => $activityLogs,
             'loginLogs' => $loginLogs,
             'discordLogs' => $discordLogs,
@@ -53,11 +60,11 @@ class LogController extends Controller
         return redirect()->route('admin.logs.index', ['tab' => 'login'] + $request->query());
     }
 
-    private function readErrorLogs(Request $request): LengthAwarePaginator
+    private function readErrorLogs(Request $request, int $perPage): LengthAwarePaginator
     {
         $path = storage_path('logs/laravel.log');
         if (! file_exists($path)) {
-            return new LengthAwarePaginator([], 0, 30, 1, [
+            return new LengthAwarePaginator([], 0, $perPage, 1, [
                 'path' => $request->url(),
                 'query' => $request->query(),
             ]);
@@ -67,7 +74,6 @@ class LogController extends Controller
         $tail = $lines->reverse()->take(400)->values();
 
         $page = max((int) $request->query('error_page', 1), 1);
-        $perPage = 30;
         $items = $tail->slice(($page - 1) * $perPage, $perPage)->values();
 
         return new LengthAwarePaginator($items, $tail->count(), $perPage, $page, [

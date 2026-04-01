@@ -14,39 +14,29 @@ class ReportController extends Controller
 {
     public function donation(Request $request)
     {
-        $donations = $this->buildQuery($request)->latest('donated_at')->get();
-        $approvedTotal = (int) $donations->where('verification_status', 'approved')->sum('amount');
-
-        $categoryTotals = $donations->groupBy(fn ($item) => $item->category?->name ?? 'Tanpa Kategori')
-            ->map(fn ($items) => $items->sum('amount'));
+        $report = $this->buildDonationReport($request);
 
         return view('reports.donations', [
-            'donations' => $donations,
-            'summary' => [
-                'total_masuk' => $approvedTotal,
-                'total_terverifikasi' => $approvedTotal,
-                'total_pending' => (int) $donations->where('verification_status', 'pending')->sum('amount'),
-                'total_ditolak' => (int) $donations->where('verification_status', 'rejected')->sum('amount'),
-            ],
+            'donations' => $report['donations'],
+            'summary' => $report['summary'],
+            'ledger' => $report['ledger'],
             'categories' => DonationCategory::where('is_active', true)->orderBy('name')->get(),
             'activities' => Activity::where('is_active', true)->orderBy('title')->get(),
-            'categoryLabels' => $categoryTotals->keys(),
-            'categoryValues' => $categoryTotals->values(),
+            'categoryLabels' => $report['categoryTotals']->keys(),
+            'categoryValues' => $report['categoryTotals']->values(),
+            'methodLabels' => $report['methodTotals']->keys(),
+            'methodValues' => $report['methodTotals']->values(),
         ]);
     }
 
     public function donationPdf(Request $request)
     {
-        $donations = $this->buildQuery($request)->latest('donated_at')->get();
-        $approvedTotal = (int) $donations->where('verification_status', 'approved')->sum('amount');
+        $report = $this->buildDonationReport($request);
 
         $pdf = Pdf::loadView('reports.pdf.donations-official', [
-            'donations' => $donations,
-            'summary' => [
-                'total_masuk' => $approvedTotal,
-                'total_terverifikasi' => $approvedTotal,
-                'total_pending' => (int) $donations->where('verification_status', 'pending')->sum('amount'),
-            ],
+            'donations' => $report['donations'],
+            'summary' => $report['summary'],
+            'ledger' => $report['ledger'],
             'printedAt' => now(),
             'period' => [
                 'start' => $request->input('start_date'),
@@ -59,10 +49,26 @@ class ReportController extends Controller
 
     public function donationExcel(Request $request)
     {
-        $donations = $this->buildQuery($request)->latest('donated_at')->get();
-        $approvedTotal = (int) $donations->where('verification_status', 'approved')->sum('amount');
+        $report = $this->buildDonationReport($request);
+        $donations = $report['donations'];
+        $summary = $report['summary'];
+        $ledger = $report['ledger'];
 
         $lines = [];
+        $lines[] = ['LAPORAN PENERIMAAN DAN PENGGUNAAN DANA DONASI'];
+        $lines[] = ['Periode', (string) ($request->input('start_date') ?: '-') . ' s/d ' . (string) ($request->input('end_date') ?: '-')];
+        $lines[] = [];
+        $lines[] = ['RINGKASAN'];
+        $lines[] = ['Saldo Awal', $ledger['saldo_awal']];
+        $lines[] = ['Total Penerimaan Donasi (Approved)', $ledger['total_penerimaan']];
+        $lines[] = ['Total Penyaluran Dana', $ledger['total_penyaluran']];
+        $lines[] = ['Total Biaya Operasional', $ledger['total_operasional']];
+        $lines[] = ['Surplus / (Defisit)', $ledger['surplus_defisit']];
+        $lines[] = ['Saldo Akhir', $ledger['saldo_akhir']];
+        $lines[] = ['Pending', $summary['total_pending']];
+        $lines[] = ['Ditolak', $summary['total_ditolak']];
+        $lines[] = [];
+        $lines[] = ['DETAIL PENERIMAAN DONASI'];
         $lines[] = [
             'Tanggal', 'Kode Donasi', 'Nama Donatur', 'Kategori', 'Kegiatan', 'Metode', 'Nominal', 'Status Pembayaran', 'Status Verifikasi', 'Kwitansi',
         ];
@@ -82,37 +88,94 @@ class ReportController extends Controller
             ];
         }
 
-        $lines[] = ['', '', '', '', '', 'TOTAL (APPROVED)', $approvedTotal, '', '', ''];
+        $lines[] = ['', '', '', '', '', 'TOTAL (APPROVED)', $ledger['total_penerimaan'], '', '', ''];
+        $lines[] = [];
+        $lines[] = ['DETAIL PENYALURAN DANA (INPUT MANUAL PERIODE)', '', '', '', '', '', $ledger['total_penyaluran']];
+        $lines[] = ['DETAIL BIAYA OPERASIONAL (INPUT MANUAL PERIODE)', '', '', '', '', '', $ledger['total_operasional']];
 
-        $csv = collect($lines)->map(function (array $row): string {
-            return '"' . collect($row)->map(function ($value): string {
-                return str_replace('"', '""', (string) $value);
-            })->implode('","') . '"';
-        })->implode("\r\n");
+        $delimiter = ';';
+        $csvRows = collect($lines)->map(function (array $row) use ($delimiter): string {
+            return collect($row)->map(function ($value) use ($delimiter): string {
+                $cell = str_replace(["\r\n", "\r", "\n"], ' ', (string) $value);
+                $cell = str_replace('"', '""', $cell);
+
+                return '"' . $cell . '"';
+            })->implode($delimiter);
+        });
+
+        // "sep=;" membantu Excel (regional Indonesia) membaca delimiter dengan benar.
+        $csv = "\xEF\xBB\xBF" . "sep={$delimiter}\r\n" . $csvRows->implode("\r\n");
 
         return response($csv)
-            ->header('Content-Type', 'application/vnd.ms-excel; charset=UTF-8')
-            ->header('Content-Disposition', 'attachment; filename="laporan-donasi.xls"');
+            ->header('Content-Type', 'text/csv; charset=UTF-8')
+            ->header('Content-Disposition', 'attachment; filename="laporan-donasi.csv"');
     }
 
     public function donationPrint(Request $request)
     {
-        $donations = $this->buildQuery($request)->latest('donated_at')->get();
-        $approvedTotal = (int) $donations->where('verification_status', 'approved')->sum('amount');
+        $report = $this->buildDonationReport($request);
 
         return view('reports.print.donations', [
-            'donations' => $donations,
-            'summary' => [
-                'total_masuk' => $approvedTotal,
-                'total_terverifikasi' => $approvedTotal,
-                'total_pending' => (int) $donations->where('verification_status', 'pending')->sum('amount'),
-            ],
+            'donations' => $report['donations'],
+            'summary' => $report['summary'],
+            'ledger' => $report['ledger'],
             'printedAt' => now(),
             'period' => [
                 'start' => $request->input('start_date'),
                 'end' => $request->input('end_date'),
             ],
         ]);
+    }
+
+    private function buildDonationReport(Request $request): array
+    {
+        $donations = $this->buildQuery($request)->latest('donated_at')->get();
+        $approvedDonations = $donations->where('verification_status', 'approved');
+        $approvedTotal = (int) $approvedDonations->sum('amount');
+
+        $saldoAwal = $this->moneyInput($request, 'saldo_awal');
+        $totalPenyaluran = $this->moneyInput($request, 'total_penyaluran');
+        $totalOperasional = $this->moneyInput($request, 'total_operasional');
+
+        $surplusDefisit = $approvedTotal - ($totalPenyaluran + $totalOperasional);
+        $saldoAkhir = $saldoAwal + $surplusDefisit;
+
+        $categoryTotals = $approvedDonations
+            ->groupBy(fn ($item) => $item->category?->name ?? 'Tanpa Kategori')
+            ->map(fn ($items) => (int) $items->sum('amount'))
+            ->sortKeys();
+
+        $methodTotals = $approvedDonations
+            ->groupBy(fn ($item) => strtoupper((string) data_get($item->payment_payload, 'channel', $item->payment_method)))
+            ->map(fn ($items) => (int) $items->sum('amount'));
+
+        return [
+            'donations' => $donations,
+            'summary' => [
+                'total_masuk' => $approvedTotal,
+                'total_terverifikasi' => $approvedTotal,
+                'total_pending' => (int) $donations->where('verification_status', 'pending')->sum('amount'),
+                'total_ditolak' => (int) $donations->where('verification_status', 'rejected')->sum('amount'),
+            ],
+            'ledger' => [
+                'saldo_awal' => $saldoAwal,
+                'total_penerimaan' => $approvedTotal,
+                'total_penyaluran' => $totalPenyaluran,
+                'total_operasional' => $totalOperasional,
+                'surplus_defisit' => $surplusDefisit,
+                'saldo_akhir' => $saldoAkhir,
+            ],
+            'categoryTotals' => $categoryTotals,
+            'methodTotals' => $methodTotals,
+        ];
+    }
+
+    private function moneyInput(Request $request, string $key): int
+    {
+        $raw = (string) $request->input($key, '0');
+        $numeric = preg_replace('/[^\d]/', '', $raw);
+
+        return (int) ($numeric ?: 0);
     }
 
     private function buildQuery(Request $request): Builder

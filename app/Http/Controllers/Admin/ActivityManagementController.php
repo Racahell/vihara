@@ -13,6 +13,8 @@ class ActivityManagementController extends Controller
     public function index(Request $request)
     {
         $isSuperadmin = $request->user()?->hasRole('superadmin') ?? false;
+        $perPage = (int) $request->integer('per_page', 10);
+        $perPage = in_array($perPage, [10, 25, 50, 100], true) ? $perPage : 10;
         $tab = (string) $request->query('tab', 'active');
         if (! in_array($tab, ['active', 'deleted'], true)) {
             $tab = 'active';
@@ -24,14 +26,15 @@ class ActivityManagementController extends Controller
         return view('admin.activities', [
             'tab' => $tab,
             'canViewDeleted' => $isSuperadmin,
+            'perPage' => $perPage,
             'activities' => Activity::query()
                 ->latest('start_at')
-                ->paginate(12, ['*'], 'active_page')
+                ->paginate($perPage, ['*'], 'active_page')
                 ->appends($request->query()),
             'deletedActivities' => $isSuperadmin
                 ? Activity::onlyTrashed()
                     ->latest('deleted_at')
-                    ->paginate(12, ['*'], 'deleted_page')
+                    ->paginate($perPage, ['*'], 'deleted_page')
                     ->appends($request->query())
                 : null,
         ]);

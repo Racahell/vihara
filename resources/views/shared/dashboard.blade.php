@@ -1,24 +1,24 @@
 @extends('layouts.app')
 @section('title', 'Dashboard')
 @section('content')
-<div class="cards">
-    <div class="card"><div class="muted">Kegiatan Aktif</div><h2>{{ $stats['kegiatan_aktif'] }}</h2></div>
-    <div class="card"><div class="muted">Total Pendaftaran</div><h2>{{ $stats['pendaftaran_total'] }}</h2></div>
-    <div class="card"><div class="muted">Hadir Hari Ini</div><h2>{{ $stats['hadir_hari_ini'] }}</h2></div>
+<div class="cards dashboard-kpi-grid">
+    <div class="card kpi-card kpi-info"><div class="kpi-label">Kegiatan Aktif</div><h2 class="kpi-value">{{ number_format($stats['kegiatan_aktif'], 0, ',', '.') }}</h2></div>
+    <div class="card kpi-card kpi-info"><div class="kpi-label">Total Pendaftaran</div><h2 class="kpi-value">{{ number_format($stats['pendaftaran_total'], 0, ',', '.') }}</h2></div>
+    <div class="card kpi-card kpi-info"><div class="kpi-label">Hadir Hari Ini</div><h2 class="kpi-value">{{ number_format($stats['hadir_hari_ini'], 0, ',', '.') }}</h2></div>
     @if($isPetugas ?? false)
-        <div class="card"><div class="muted">Total Umat Aktif</div><h2>{{ $stats['umat_aktif'] ?? 0 }}</h2></div>
-        <div class="card"><div class="muted">Check-In Online (Hari Ini)</div><h2>{{ $stats['checkin_online_hari_ini'] ?? 0 }}</h2></div>
-        <div class="card"><div class="muted">Walk-In (Hari Ini)</div><h2>{{ $stats['walkin_hari_ini'] ?? 0 }}</h2></div>
+        <div class="card kpi-card kpi-info"><div class="kpi-label">Total Umat Aktif</div><h2 class="kpi-value">{{ number_format($stats['umat_aktif'] ?? 0, 0, ',', '.') }}</h2></div>
+        <div class="card kpi-card kpi-success"><div class="kpi-label">Check-In Online (Hari Ini)</div><h2 class="kpi-value">{{ number_format($stats['checkin_online_hari_ini'] ?? 0, 0, ',', '.') }}</h2></div>
+        <div class="card kpi-card kpi-warning"><div class="kpi-label">Walk-In (Hari Ini)</div><h2 class="kpi-value">{{ number_format($stats['walkin_hari_ini'] ?? 0, 0, ',', '.') }}</h2></div>
     @else
-        <div class="card"><div class="muted">Donasi Approved</div><h2>Rp {{ number_format($stats['donasi_berhasil'], 0, ',', '.') }}</h2></div>
+        <div class="card kpi-card kpi-success kpi-primary"><div class="kpi-label">Donasi Approved</div><h2 class="kpi-value">Rp {{ number_format($stats['donasi_berhasil'], 0, ',', '.') }}</h2></div>
     @endif
 </div>
 
 @if($canSeeIncomeReport ?? false)
-    <div class="cards">
-        <div class="card"><div class="muted">Income DAILY</div><h2>Rp {{ number_format($incomeReport['daily'] ?? 0, 0, ',', '.') }}</h2></div>
-        <div class="card"><div class="muted">Income TODAY</div><h2>Rp {{ number_format($incomeReport['today'] ?? 0, 0, ',', '.') }}</h2></div>
-        <div class="card"><div class="muted">Income YESTERDAY</div><h2>Rp {{ number_format($incomeReport['yesterday'] ?? 0, 0, ',', '.') }}</h2></div>
+    <div class="cards dashboard-kpi-grid">
+        <div class="card kpi-card kpi-success"><div class="kpi-label">Income Daily</div><h2 class="kpi-value">Rp {{ number_format($incomeReport['daily'] ?? 0, 0, ',', '.') }}</h2></div>
+        <div class="card kpi-card kpi-primary kpi-success"><div class="kpi-label">Income Today</div><h2 class="kpi-value">Rp {{ number_format($incomeReport['today'] ?? 0, 0, ',', '.') }}</h2></div>
+        <div class="card kpi-card kpi-info"><div class="kpi-label">Income Yesterday</div><h2 class="kpi-value">Rp {{ number_format($incomeReport['yesterday'] ?? 0, 0, ',', '.') }}</h2></div>
     </div>
 @endif
 
@@ -40,6 +40,8 @@
             <div class="chart-wrap">
                 <canvas
                     data-chart="donation-monthly"
+                    data-unit="currency"
+                    data-dataset-label="Donasi Bulanan (Rp)"
                     data-labels='@json($monthlyDonationLabels)'
                     data-values='@json($monthlyDonationValues)'></canvas>
             </div>
@@ -60,6 +62,8 @@
             <div class="chart-wrap">
                 <canvas
                     data-chart="category-breakdown"
+                    data-unit="currency"
+                    data-dataset-label="Total Donasi per Kategori (Rp)"
                     data-labels='@json($categoryLabels)'
                     data-values='@json($categoryValues)'></canvas>
             </div>
@@ -113,6 +117,34 @@
                     data-labels='@json($petugasMethodLabels ?? [])'
                     data-values='@json($petugasMethodValues ?? [])'></canvas>
             </div>
+        </div>
+    </div>
+@endif
+
+@if(($canSeeDonationWidgets ?? false) && ($recentApprovedDonations ?? collect())->isNotEmpty())
+    <div class="card" style="margin-top:14px;">
+        <h3>Aktivitas Donasi Terbaru</h3>
+        <div class="table-wrap" style="margin-top:10px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Waktu</th>
+                        <th>Kode</th>
+                        <th>Donatur</th>
+                        <th>Nominal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($recentApprovedDonations as $donation)
+                        <tr>
+                            <td>{{ $donation->donated_at?->format('d-m-Y H:i') ?? '-' }}</td>
+                            <td>DON-{{ str_pad((string) $donation->id, 6, '0', STR_PAD_LEFT) }}</td>
+                            <td>{{ $donation->donor_name ?: '-' }}</td>
+                            <td>Rp {{ number_format((int) $donation->amount, 0, ',', '.') }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
     </div>
 @endif

@@ -13,6 +13,18 @@
     <div class="card"><div class="muted">Aktivitas Hari Ini</div><h2>{{ $summary['aktivitas_hari_ini'] }}</h2></div>
 </div>
 
+<div class="table-toolbar" style="margin-top:12px;">
+    <div class="muted">Atur jumlah data per tabel notifikasi</div>
+    <form method="GET" class="table-length">
+        <label for="notifications-per-page">Tampilkan</label>
+        <select id="notifications-per-page" name="per_page" onchange="this.form.submit()">
+            @foreach([10, 25, 50, 100] as $size)
+                <option value="{{ $size }}" @selected((int) ($perPage ?? 10) === $size)>{{ $size }}</option>
+            @endforeach
+        </select>
+    </form>
+</div>
+
 <div class="grid-2" style="margin-top:12px;">
     <div class="table-wrap no-scroll">
         <table>
@@ -30,6 +42,7 @@
             @endforelse
             </tbody>
         </table>
+        {{ $recentNotifications->links() }}
     </div>
 
     <div class="table-wrap no-scroll">
@@ -49,6 +62,7 @@
             @endforelse
             </tbody>
         </table>
+        {{ $discordNotifications->links() }}
     </div>
 </div>
 @endsection

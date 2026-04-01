@@ -24,16 +24,24 @@
         <button onclick="window.print()">Print Sekarang</button>
     </div>
 
-    <h1>Laporan Keuangan Donasi Vihara</h1>
+    <h1>Laporan Penerimaan dan Penggunaan Dana Donasi</h1>
     <div class="meta">
         Periode: {{ $period['start'] ?: '-' }} s/d {{ $period['end'] ?: '-' }}<br>
         Dicetak: {{ $printedAt->format('d-m-Y H:i') }}
     </div>
 
     <div class="summary">
-        <div class="box"><strong>Total Donasi Masuk</strong><br>Rp {{ number_format($summary['total_masuk'], 0, ',', '.') }}</div>
-        <div class="box"><strong>Donasi Terverifikasi</strong><br>Rp {{ number_format($summary['total_terverifikasi'], 0, ',', '.') }}</div>
-        <div class="box"><strong>Donasi Pending</strong><br>Rp {{ number_format($summary['total_pending'], 0, ',', '.') }}</div>
+        <div class="box"><strong>Saldo Awal</strong><br>Rp {{ number_format($ledger['saldo_awal'], 0, ',', '.') }}</div>
+        <div class="box"><strong>Total Penerimaan</strong><br>Rp {{ number_format($ledger['total_penerimaan'], 0, ',', '.') }}</div>
+        <div class="box"><strong>Total Penyaluran</strong><br>Rp {{ number_format($ledger['total_penyaluran'], 0, ',', '.') }}</div>
+        <div class="box"><strong>Total Operasional</strong><br>Rp {{ number_format($ledger['total_operasional'], 0, ',', '.') }}</div>
+        <div class="box"><strong>Surplus / (Defisit)</strong><br>Rp {{ number_format($ledger['surplus_defisit'], 0, ',', '.') }}</div>
+        <div class="box"><strong>Saldo Akhir</strong><br>Rp {{ number_format($ledger['saldo_akhir'], 0, ',', '.') }}</div>
+    </div>
+
+    <div style="margin-bottom:12px;font-size:12px;">
+        Donasi Pending: Rp {{ number_format($summary['total_pending'], 0, ',', '.') }} |
+        Donasi Ditolak: Rp {{ number_format($summary['total_ditolak'], 0, ',', '.') }}
     </div>
 
     <table>
@@ -66,4 +74,3 @@
     </table>
 </body>
 </html>
-

@@ -12,10 +12,14 @@ use Illuminate\Support\Facades\Storage;
 
 class DonationVerificationController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $perPage = (int) $request->integer('per_page', 10);
+        $perPage = in_array($perPage, [10, 25, 50, 100], true) ? $perPage : 10;
+
         return view('admin.donation-verification', [
-            'donations' => Donation::latest()->paginate(20),
+            'perPage' => $perPage,
+            'donations' => Donation::latest()->paginate($perPage)->withQueryString(),
         ]);
     }
 
