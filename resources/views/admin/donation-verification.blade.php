@@ -1,6 +1,72 @@
 @extends('layouts.app')
 @section('title', 'Verifikasi Donasi')
 @section('content')
+<style>
+.proof-thumb-link { display: inline-block; }
+.proof-thumb {
+    width: 72px;
+    height: 72px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    object-fit: cover;
+    display: block;
+    cursor: zoom-in;
+    background: #fff;
+}
+.proof-viewer {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+    display: none;
+}
+.proof-viewer.is-open { display: block; }
+.proof-viewer-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.72);
+}
+.proof-viewer-dialog {
+    position: relative;
+    width: min(94vw, 1080px);
+    max-height: 92vh;
+    margin: 2vh auto;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: auto 1fr;
+}
+.proof-viewer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border-bottom: 1px solid #e2e8f0;
+}
+.proof-viewer-tools {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+}
+.proof-viewer-canvas {
+    position: relative;
+    overflow: auto;
+    background: #f8fafc;
+    min-height: 320px;
+    max-height: calc(92vh - 62px);
+    display: grid;
+    place-items: center;
+    padding: 16px;
+}
+.proof-viewer-image {
+    max-width: 100%;
+    max-height: calc(92vh - 110px);
+    transform-origin: center center;
+    transition: transform 0.14s ease;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+</style>
 <div class="table-toolbar" style="margin:0 0 10px 0;">
     <h3 style="margin:0;">Daftar Verifikasi Donasi</h3>
     <form method="GET" class="table-length">
@@ -27,7 +93,18 @@
             </td>
             <td>
                 @if($donation->bank_transfer_proof_path)
-                    <a class="btn btn-secondary" href="{{ route('admin.donation-proof.download', $donation) }}">Unduh Bukti</a>
+                    @if($donation->proof_is_image)
+                        <a
+                            class="proof-thumb-link"
+                            href="{{ $donation->proof_preview_url }}"
+                            data-proof-open
+                            data-proof-src="{{ $donation->proof_preview_url }}"
+                            data-proof-title="Bukti Transfer Donasi #{{ $donation->id }}">
+                            <img src="{{ $donation->proof_preview_url }}" alt="Bukti transfer #{{ $donation->id }}" class="proof-thumb">
+                        </a>
+                    @else
+                        <span class="muted">Format bukan gambar</span>
+                    @endif
                 @else
                     <span class="muted">Belum upload</span>
                 @endif
@@ -35,9 +112,6 @@
             <td>{{ strtoupper($donation->verification_status) }}</td>
             <td>
                 <button type="button" class="btn btn-outline" data-modal-open="donation-modal-{{ $donation->id }}">Detail</button>
-                @if($donation->receipt_pdf_path)
-                    <a class="btn btn-green" style="display:inline-block;margin-top:8px;" href="{{ route('admin.donation-receipts.download', $donation) }}">Unduh Kwitansi</a>
-                @endif
             </td>
         </tr>
     @endforeach
@@ -71,11 +145,27 @@
                         <div><strong>Status Verifikasi</strong><div>{{ strtoupper($donation->verification_status) }}</div></div>
                         <div><strong>Catatan</strong><div>{{ $donation->note ?: '-' }}</div></div>
                     </div>
+                    @if($donation->receipt_pdf_path)
+                        <div style="margin-top:10px;">
+                            <a class="btn btn-green" href="{{ route('admin.donation-receipts.download', $donation) }}">Unduh Kwitansi</a>
+                        </div>
+                    @endif
                 </div>
 
                 @if($donation->bank_transfer_proof_path)
                     <div class="detail-section">
-                        <a class="btn btn-secondary" href="{{ route('admin.donation-proof.download', $donation) }}">Unduh Bukti Transfer</a>
+                        @if($donation->proof_is_image)
+                            <a
+                                class="proof-thumb-link"
+                                href="{{ $donation->proof_preview_url }}"
+                                data-proof-open
+                                data-proof-src="{{ $donation->proof_preview_url }}"
+                                data-proof-title="Bukti Transfer Donasi #{{ $donation->id }}">
+                                <img src="{{ $donation->proof_preview_url }}" alt="Bukti transfer #{{ $donation->id }}" class="proof-thumb" style="width:120px;height:120px;">
+                            </a>
+                        @else
+                            <span class="muted">Format bukti bukan gambar</span>
+                        @endif
                     </div>
                 @endif
 
@@ -105,4 +195,111 @@
         </div>
     </div>
 @endforeach
+<div class="proof-viewer" id="proof-viewer" aria-hidden="true">
+    <button type="button" class="proof-viewer-backdrop" data-proof-close></button>
+    <div class="proof-viewer-dialog" role="dialog" aria-modal="true" aria-labelledby="proof-viewer-title">
+        <div class="proof-viewer-header">
+            <strong id="proof-viewer-title">Bukti Transfer</strong>
+            <div class="proof-viewer-tools">
+                <button type="button" class="btn btn-outline" data-proof-zoom-out>Zoom -</button>
+                <button type="button" class="btn btn-outline" data-proof-zoom-reset>Reset</button>
+                <button type="button" class="btn btn-outline" data-proof-zoom-in>Zoom +</button>
+                <button type="button" class="btn btn-secondary" data-proof-close>Tutup</button>
+            </div>
+        </div>
+        <div class="proof-viewer-canvas">
+            <img src="" alt="Preview bukti transfer" class="proof-viewer-image" data-proof-image>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const viewer = document.getElementById('proof-viewer');
+    const image = viewer ? viewer.querySelector('[data-proof-image]') : null;
+    const title = viewer ? viewer.querySelector('#proof-viewer-title') : null;
+    if (!viewer || !image || !title) return;
+
+    const openButtons = document.querySelectorAll('[data-proof-open]');
+    const closeButtons = viewer.querySelectorAll('[data-proof-close]');
+    const zoomInBtn = viewer.querySelector('[data-proof-zoom-in]');
+    const zoomOutBtn = viewer.querySelector('[data-proof-zoom-out]');
+    const zoomResetBtn = viewer.querySelector('[data-proof-zoom-reset]');
+    const canvas = viewer.querySelector('.proof-viewer-canvas');
+
+    let zoom = 1;
+    const minZoom = 0.3;
+    const maxZoom = 5;
+
+    const applyZoom = function () {
+        image.style.transform = 'scale(' + zoom + ')';
+    };
+
+    const openViewer = function (src, label) {
+        zoom = 1;
+        image.src = src;
+        applyZoom();
+        title.textContent = label || 'Bukti Transfer';
+        viewer.classList.add('is-open');
+        viewer.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+    };
+
+    const closeViewer = function () {
+        viewer.classList.remove('is-open');
+        viewer.setAttribute('aria-hidden', 'true');
+        image.src = '';
+        document.body.style.overflow = '';
+    };
+
+    openButtons.forEach(function (button) {
+        button.addEventListener('click', function (event) {
+            event.preventDefault();
+            const src = button.getAttribute('data-proof-src') || '';
+            if (!src) return;
+            openViewer(src, button.getAttribute('data-proof-title') || 'Bukti Transfer');
+        });
+    });
+
+    closeButtons.forEach(function (button) {
+        button.addEventListener('click', closeViewer);
+    });
+
+    if (zoomInBtn) {
+        zoomInBtn.addEventListener('click', function () {
+            zoom = Math.min(maxZoom, +(zoom + 0.2).toFixed(2));
+            applyZoom();
+        });
+    }
+
+    if (zoomOutBtn) {
+        zoomOutBtn.addEventListener('click', function () {
+            zoom = Math.max(minZoom, +(zoom - 0.2).toFixed(2));
+            applyZoom();
+        });
+    }
+
+    if (zoomResetBtn) {
+        zoomResetBtn.addEventListener('click', function () {
+            zoom = 1;
+            applyZoom();
+        });
+    }
+
+    if (canvas) {
+        canvas.addEventListener('wheel', function (event) {
+            if (!viewer.classList.contains('is-open')) return;
+            event.preventDefault();
+            const direction = event.deltaY < 0 ? 1 : -1;
+            zoom = Math.max(minZoom, Math.min(maxZoom, +(zoom + (0.12 * direction)).toFixed(2)));
+            applyZoom();
+        }, { passive: false });
+    }
+
+    document.addEventListener('keydown', function (event) {
+        if (viewer.classList.contains('is-open') && event.key === 'Escape') {
+            closeViewer();
+        }
+    });
+});
+</script>
 @endsection

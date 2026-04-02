@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Donation;
 use App\Models\DonationVerificationLog;
 use App\Models\User;
+use App\Models\WebsiteSetting;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
 
@@ -24,6 +25,7 @@ class DonationSettlementService
             && strtolower((string) $donation->verification_status) === 'approved'
             && $donation->receipt_number
             && $donation->receipt_pdf_path
+            && Storage::disk('local')->exists((string) $donation->receipt_pdf_path)
         ) {
             return $donation;
         }
@@ -107,12 +109,24 @@ class DonationSettlementService
         if (! $approver) {
             $approver = (object) ['name' => 'Sistem Otomatis'];
         }
+        $receiverName = (string) (WebsiteSetting::query()->where('key', 'manager_name')->value('value') ?? '');
+        if ($receiverName === '') {
+            $receiverName = (string) ($approver->name ?? 'Sistem');
+        }
+
+        $organizationName = (string) (
+            WebsiteSetting::query()->where('key', 'company_name')->value('value')
+            ?: WebsiteSetting::query()->where('key', 'website_name')->value('value')
+            ?: config('app.name')
+        );
 
         $pdf = Pdf::loadView('reports.pdf.receipt-official', [
             'donation' => $donation,
             'receiptNumber' => $receiptNumber,
             'verifiedAt' => $verifiedAt,
             'approver' => $approver,
+            'receiverName' => $receiverName,
+            'organizationName' => $organizationName,
         ])->setPaper('a5', 'portrait');
 
         Storage::disk('local')->put($filePath, $pdf->output());

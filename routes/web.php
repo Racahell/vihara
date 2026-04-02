@@ -94,6 +94,7 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::get('/donation-verification', [DonationVerificationController::class, 'index'])->middleware('permission:verifikasi_donasi.view')->name('donation-verification.index');
         Route::get('/donation-receipts/{donation}', [DonationVerificationController::class, 'downloadReceipt'])->middleware('permission:verifikasi_donasi.view')->name('donation-receipts.download');
         Route::get('/donation-proofs/{donation}', [DonationVerificationController::class, 'downloadProof'])->middleware('permission:verifikasi_donasi.view')->name('donation-proof.download');
+        Route::get('/donation-proofs/{donation}/preview', [DonationVerificationController::class, 'previewProof'])->middleware('permission:verifikasi_donasi.view')->name('donation-proof.preview');
     });
 
     Route::middleware('role:superadmin,admin')->prefix('admin')->name('admin.')->group(function () {

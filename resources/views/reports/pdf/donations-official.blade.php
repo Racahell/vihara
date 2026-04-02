@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <style>
         body { font-family: DejaVu Sans, sans-serif; color: #1f2a2e; font-size: 12px; }
-        .head { border-bottom: 2px solid #f2c3d6; padding-bottom: 8px; margin-bottom: 12px; }
+        .head { border-bottom: 2px solid #d6dde3; padding-bottom: 8px; margin-bottom: 12px; }
         .title { font-size: 18px; font-weight: 700; }
         .meta { color: #4f6066; margin-top: 4px; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { border: 1px solid #dce6ea; padding: 6px; }
-        th { background: #fdf3f8; text-align: left; }
+        th { background: #f3f4f6; text-align: left; }
         .summary { margin-top: 12px; font-size: 12px; }
         .summary div { margin-top: 3px; }
         .sign { margin-top: 24px; width: 100%; }

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 31, 2026 at 06:53 PM
+-- Generation Time: Apr 01, 2026 at 04:58 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -155,7 +155,22 @@ INSERT INTO `activity_logs` (`id`, `user_id`, `action`, `target_type`, `target_i
 (77, 4, 'logout', 'users', 4, 'Pengguna logout', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 09:09:32'),
 (78, 5, 'login', 'users', 5, 'Pengguna berhasil login', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 09:09:50'),
 (79, 5, 'logout', 'users', 5, 'Pengguna logout', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 09:10:32'),
-(80, 1, 'login', 'users', 1, 'Pengguna berhasil login', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 09:10:45');
+(80, 1, 'login', 'users', 1, 'Pengguna berhasil login', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 09:10:45'),
+(81, 3, 'login', 'users', 3, 'Pengguna berhasil login', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 19:06:59'),
+(82, 3, 'create_user', 'users', 8, 'Tambah user satukaki@g (role: umat, status: aktif)', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 19:12:04'),
+(83, 3, 'logout', 'users', 3, 'Pengguna logout', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 19:12:10'),
+(84, 8, 'login', 'users', 8, 'Pengguna berhasil login', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 19:13:08'),
+(85, 8, 'logout', 'users', 8, 'Pengguna logout', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 19:39:08'),
+(86, 3, 'login', 'users', 3, 'Pengguna berhasil login', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 19:39:20'),
+(87, 3, 'logout', 'users', 3, 'Pengguna logout', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 19:41:15'),
+(88, 8, 'login', 'users', 8, 'Pengguna berhasil login', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 19:41:39'),
+(89, 8, 'create_donation', 'donations', 9, 'Donasi dibuat #9', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 19:41:55'),
+(90, 8, 'create_donation', 'donations', 10, 'Donasi dibuat #10', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 19:45:24'),
+(91, 8, 'upload_donation_proof', 'donations', 10, 'Upload bukti transfer donasi #10', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 19:45:43'),
+(92, 8, 'upload_donation_proof', 'donations', 9, 'Upload bukti transfer donasi #9', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 19:45:53'),
+(93, 8, 'create_donation', 'donations', 11, 'Donasi dibuat #11', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 19:46:30'),
+(94, 8, 'upload_donation_proof', 'donations', 11, 'Upload bukti transfer donasi #11', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 19:46:43'),
+(95, 8, 'logout', 'users', 8, 'Pengguna logout', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 19:51:42');
 
 -- --------------------------------------------------------
 
@@ -356,7 +371,10 @@ INSERT INTO `donations` (`id`, `user_id`, `donation_category_id`, `activity_id`,
 (5, 7, NULL, NULL, 'rachel', 'akunsecool3@gmail.com', '089643211716', 60000, NULL, 'midtrans', 'failed', 'rejected', 'DON-QRIS-20260331141256-NOBSEK', NULL, '{\"channel\":\"qris\",\"donor_type\":\"named\",\"bank_name\":\"BCA\",\"account_number\":\"1234567890\",\"account_holder\":\"Vihara Dharma Sejahtera\",\"verification_key\":\"903156fd-b68c-4299-8c18-cb9d5ade33ef\",\"qris_payload\":null,\"qris_image\":null,\"qris_expired_at\":\"2026-03-31 14:27:56\",\"gateway_status\":\"simulated\",\"gateway_payload\":{\"message\":\"Midtrans belum dikonfigurasi\"}}', NULL, NULL, 3, '2026-03-31 14:41:39', 'Tidak memenuhi verifikasi', NULL, NULL, '2026-03-31 14:12:56', '2026-03-31 07:12:56', '2026-03-31 07:41:39', NULL),
 (6, 7, NULL, NULL, 'rachel', 'akunsecool3@gmail.com', '089643211716', 60000, NULL, 'midtrans', 'failed', 'rejected', 'DON-QRIS-20260331141442-WR64IG', NULL, '{\"channel\":\"qris\",\"donor_type\":\"named\",\"bank_name\":\"BCA\",\"account_number\":\"1234567890\",\"account_holder\":\"Vihara Dharma Sejahtera\",\"verification_key\":\"6dc4fb07-a414-4fc4-ad3a-22925a36b801\",\"qris_payload\":null,\"qris_image\":null,\"qris_expired_at\":\"2026-03-31 14:29:42\",\"gateway_status\":\"simulated\",\"gateway_payload\":{\"message\":\"Midtrans belum dikonfigurasi\"}}', NULL, NULL, 3, '2026-03-31 14:41:45', 'Tidak memenuhi verifikasi', NULL, NULL, '2026-03-31 14:14:42', '2026-03-31 07:14:42', '2026-03-31 07:41:45', NULL),
 (7, 7, NULL, NULL, 'rachel', 'akunsecool3@gmail.com', '089643211716', 5000, NULL, 'transfer', 'paid', 'pending', NULL, NULL, '{\"channel\":\"bank_transfer\",\"donor_type\":\"named\",\"bank_name\":\"BCA\",\"account_number\":\"3403635461\",\"account_holder\":\"Yayasan Sinar Pancaran Putih\",\"verification_key\":\"dc5734aa-3a8f-4d61-b2a2-9dbf2e77d090\",\"qris_payload\":null,\"qris_image\":null,\"qris_expired_at\":null,\"gateway_status\":null,\"gateway_payload\":null}', 'donation-proofs/DVs6ij5WanWm3ifib7QzKrkaGM4kKUwzt7lFSIQo.jpg', '2026-03-31 15:21:02', NULL, NULL, NULL, NULL, NULL, '2026-03-31 15:14:58', '2026-03-31 08:14:58', '2026-03-31 08:21:02', NULL),
-(8, 7, NULL, NULL, 'rachel', 'akunsecool3@gmail.com', '089643211716', 5000, NULL, 'midtrans', 'failed', 'pending', 'DON-QRIS-20260331151704-QTZZGB', NULL, '{\"channel\":\"qris\",\"donor_type\":\"named\",\"bank_name\":\"BCA\",\"account_number\":\"3403635461\",\"account_holder\":\"Yayasan Sinar Pancaran Putih\",\"verification_key\":\"80130517-ad13-424f-89c8-552c126fc614\",\"qris_payload\":null,\"qris_image\":null,\"qris_expired_at\":\"2026-03-31 15:32:04\",\"gateway_status\":\"simulated\",\"gateway_payload\":{\"message\":\"Midtrans belum dikonfigurasi\"}}', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-31 15:17:04', '2026-03-31 08:17:04', '2026-03-31 08:52:00', NULL);
+(8, 7, NULL, NULL, 'rachel', 'akunsecool3@gmail.com', '089643211716', 5000, NULL, 'midtrans', 'failed', 'pending', 'DON-QRIS-20260331151704-QTZZGB', NULL, '{\"channel\":\"qris\",\"donor_type\":\"named\",\"bank_name\":\"BCA\",\"account_number\":\"3403635461\",\"account_holder\":\"Yayasan Sinar Pancaran Putih\",\"verification_key\":\"80130517-ad13-424f-89c8-552c126fc614\",\"qris_payload\":null,\"qris_image\":null,\"qris_expired_at\":\"2026-03-31 15:32:04\",\"gateway_status\":\"simulated\",\"gateway_payload\":{\"message\":\"Midtrans belum dikonfigurasi\"}}', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-31 15:17:04', '2026-03-31 08:17:04', '2026-03-31 08:52:00', NULL),
+(9, 8, NULL, NULL, 'brian love kindra', 'satukaki@g', '08462465236', 30000, NULL, 'transfer', 'paid', 'pending', NULL, NULL, '{\"channel\":\"bank_transfer\",\"donor_type\":\"named\",\"bank_name\":\"BCA\",\"account_number\":\"3403635461\",\"account_holder\":\"Yayasan Sinar Pancaran Putih\",\"verification_key\":\"c52c204d-cbae-4bb1-b89e-f569b59f1b1e\"}', 'donation-proofs/CX8QB0jSLv5ayAqGaLVxAq0GuV66HGbaiEREmFsM.png', '2026-04-01 02:45:53', NULL, NULL, NULL, NULL, NULL, '2026-04-01 02:41:55', '2026-03-31 19:41:55', '2026-03-31 19:45:53', NULL),
+(10, 8, NULL, NULL, 'brian love kindra', 'satukaki@g', '08462465236', 30000, NULL, 'transfer', 'paid', 'pending', NULL, NULL, '{\"channel\":\"bank_transfer\",\"donor_type\":\"named\",\"bank_name\":\"BCA\",\"account_number\":\"3403635461\",\"account_holder\":\"Yayasan Sinar Pancaran Putih\",\"verification_key\":\"93eaa3cd-d133-417f-a3af-64b8fdab7eff\"}', 'donation-proofs/UKURsbqiEqxz12uIdWaYdEiiTzEgq08ni159GiwL.png', '2026-04-01 02:45:43', NULL, NULL, NULL, NULL, NULL, '2026-04-01 02:45:24', '2026-03-31 19:45:24', '2026-03-31 19:45:43', NULL),
+(11, 8, NULL, NULL, 'brian love kindra', 'satukaki@g', '08462465236', 10000, NULL, 'transfer', 'paid', 'pending', NULL, NULL, '{\"channel\":\"bank_transfer\",\"donor_type\":\"named\",\"bank_name\":\"BCA\",\"account_number\":\"3403635461\",\"account_holder\":\"Yayasan Sinar Pancaran Putih\",\"verification_key\":\"7ab30868-307c-4898-8be1-c91e3b338cc2\"}', 'donation-proofs/EW7bgFWqgFdlWfqXjw4EShTFOyza5SI3tbbOKHXP.png', '2026-04-01 02:46:43', NULL, NULL, NULL, NULL, NULL, '2026-04-01 02:46:30', '2026-03-31 19:46:30', '2026-03-31 19:46:43', NULL);
 
 -- --------------------------------------------------------
 
@@ -445,7 +463,8 @@ CREATE TABLE `favorite_activities` (
 --
 
 INSERT INTO `favorite_activities` (`id`, `activity_id`, `user_id`, `created_at`, `updated_at`) VALUES
-(1, 1, 6, '2026-03-31 04:44:31', '2026-03-31 04:44:31');
+(1, 1, 6, '2026-03-31 04:44:31', '2026-03-31 04:44:31'),
+(3, 1, 8, '2026-03-31 19:30:19', '2026-03-31 19:30:19');
 
 -- --------------------------------------------------------
 
@@ -736,7 +755,12 @@ INSERT INTO `login_logs` (`id`, `user_id`, `email`, `ip_address`, `user_agent`, 
 (37, 5, 'petugas@g', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', 1, '2026-03-31 09:01:22'),
 (38, 4, 'owner@g', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', 1, '2026-03-31 09:08:40'),
 (39, 5, 'petugas@g', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', 1, '2026-03-31 09:09:50'),
-(40, 1, 'superadmin@g', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', 1, '2026-03-31 09:10:45');
+(40, 1, 'superadmin@g', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', 1, '2026-03-31 09:10:45'),
+(41, 3, 'admin@g', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', 1, '2026-03-31 19:06:59'),
+(42, 8, 'satukaki@g', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', 1, '2026-03-31 19:13:08'),
+(43, 3, 'admin@g', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', 1, '2026-03-31 19:39:20'),
+(44, NULL, 'satukaki@g', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', 0, '2026-03-31 19:41:32'),
+(45, 8, 'satukaki@g', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', 1, '2026-03-31 19:41:39');
 
 -- --------------------------------------------------------
 
@@ -1358,6 +1382,7 @@ INSERT INTO `permission_role` (`role_id`, `permission_id`) VALUES
 (1, 56),
 (2, 1),
 (2, 5),
+(2, 6),
 (2, 7),
 (2, 8),
 (2, 13),
@@ -1515,7 +1540,8 @@ INSERT INTO `role_user` (`role_id`, `user_id`) VALUES
 (3, 4),
 (4, 5),
 (5, 6),
-(5, 7);
+(5, 7),
+(5, 8);
 
 -- --------------------------------------------------------
 
@@ -1537,7 +1563,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('vfsbcCpBFyp7dzsoDvBfRBb5TgbIo3UX7f2J3Wn8', 1, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiVWZnZDhoQUVGZm9DY0xHV1lwMHVBeW9JSEZwTDl0cHpEdzVta0ZWRyI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6NDQ6Imh0dHA6Ly9sb2NhbGhvc3Q6ODAwMC9hZG1pbi93ZWJzaXRlLXNldHRpbmdzIjtzOjU6InJvdXRlIjtzOjI3OiJhZG1pbi53ZWJzaXRlLXNldHRpbmdzLmVkaXQiO31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToxO30=', 1774894543);
+('l8Jk7LrCSZLzI2Wdji06ciX1pXTjKwIPeKZSDiDu', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiMEhNWjJoeTZoeUMzSnBoVFpYbWttUUpZSmpnd3NwWDBTSWRGUmJqMyI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly9sb2NhbGhvc3Q6ODAwMC9ndWVzdCI7czo1OiJyb3V0ZSI7czoxMDoiZ3Vlc3QuaG9tZSI7fXM6MzE6Imd1ZXN0X2RvbmF0aW9uX3N1Ym1pc3Npb25fdG9rZW4iO3M6MzY6IjQ4NzY2ZWRjLWY0NTgtNDBiNy05ODM3LWI0NTlkMmYzNTI4MyI7fQ==', 1775012119);
 
 -- --------------------------------------------------------
 
@@ -1574,11 +1600,12 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `name`, `username`, `email`, `phone`, `gender`, `address`, `profile_photo_path`, `registration_ip`, `email_verified_at`, `password`, `is_active`, `activated_at`, `last_login_at`, `last_login_ip`, `last_login_user_agent`, `remember_token`, `created_at`, `updated_at`, `deleted_at`) VALUES
 (1, 'superadmin', 'superadmin', 'superadmin@g', '081100000001', NULL, NULL, NULL, NULL, '2026-03-30 07:30:17', '$2y$12$580uPwtviPF5T6S2v5jeHeICHozIH3BW9jyneFK2WgWgEaZspJY8i', 1, '2026-03-30 07:30:17', '2026-03-31 09:10:45', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', NULL, '2026-03-30 07:00:21', '2026-03-31 09:10:45', NULL),
-(3, 'admin', 'admin', 'admin@g', '081100000002', NULL, NULL, NULL, NULL, '2026-03-30 07:30:17', '$2y$12$JuRGELdoPcudUBOKottwaOj4apaNBtvYaC5WMi0ljqwKxCmD2WPQe', 1, '2026-03-30 07:30:17', '2026-03-31 07:28:55', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', NULL, '2026-03-30 07:30:17', '2026-03-31 07:28:55', NULL),
+(3, 'admin', 'admin', 'admin@g', '081100000002', NULL, NULL, NULL, NULL, '2026-03-30 07:30:17', '$2y$12$JuRGELdoPcudUBOKottwaOj4apaNBtvYaC5WMi0ljqwKxCmD2WPQe', 1, '2026-03-30 07:30:17', '2026-03-31 19:39:20', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', NULL, '2026-03-30 07:30:17', '2026-03-31 19:39:20', NULL),
 (4, 'owner', 'owner', 'owner@g', '081100000003', NULL, NULL, NULL, NULL, '2026-03-30 07:30:18', '$2y$12$U1BR/ybdklW0HBtYLsTLleFJeUEKCWcyuwuyus/J0nYASb8IborxS', 1, '2026-03-30 07:30:18', '2026-03-31 09:08:40', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', NULL, '2026-03-30 07:30:18', '2026-03-31 09:08:40', NULL),
 (5, 'petugas', 'petugas', 'petugas@g', '081100000004', NULL, NULL, NULL, NULL, '2026-03-30 07:30:18', '$2y$12$O3W0oWssnvWTHTnA2lpNM.TP.L4/obNhOJSODs2V1llNruFNqqIDe', 1, '2026-03-30 07:30:18', '2026-03-31 09:09:50', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', NULL, '2026-03-30 07:30:18', '2026-03-31 09:09:50', NULL),
 (6, 'umat', 'umat', 'umat@g', '081100000005', NULL, NULL, 'profile-photos/79bbdac9-4873-452d-9ffa-1266d981e29e.jpg', NULL, '2026-03-30 07:30:18', '$2y$12$BVSMLYJUodcEMqclbyraNO9CDD2l5Jyrf2Xcum40x0dB0TyZ4Mu.K', 1, '2026-03-30 07:30:18', '2026-03-31 04:22:32', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', NULL, '2026-03-30 07:30:18', '2026-03-31 04:43:21', NULL),
-(7, 'rachel', 'akunsecool3-i5tr', 'akunsecool3@gmail.com', '089643211716', 'P', 'aku tahu 3', NULL, '127.0.0.1', '2026-03-31 06:43:52', '$2y$12$gFNWZOK8L1RT4JYlUtGZX.5mes2TLuCBTvcOM6xQtJd8CO3e2Jy9u', 1, '2026-03-31 06:43:52', '2026-03-31 08:24:44', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', 'fwlrxJsyznDOnjW0N6iNNrEew7CVuJMXYkycvsdxiWy25uCtBY5BWKPCBI40', '2026-03-31 06:21:35', '2026-03-31 08:24:44', NULL);
+(7, 'rachel', 'akunsecool3-i5tr', 'akunsecool3@gmail.com', '089643211716', 'P', 'aku tahu 3', NULL, '127.0.0.1', '2026-03-31 06:43:52', '$2y$12$gFNWZOK8L1RT4JYlUtGZX.5mes2TLuCBTvcOM6xQtJd8CO3e2Jy9u', 1, '2026-03-31 06:43:52', '2026-03-31 08:24:44', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', 'fwlrxJsyznDOnjW0N6iNNrEew7CVuJMXYkycvsdxiWy25uCtBY5BWKPCBI40', '2026-03-31 06:21:35', '2026-03-31 08:24:44', NULL),
+(8, 'brian love kindra', 'satukaki', 'satukaki@g', '08462465236', NULL, NULL, 'profile-photos/89c32c74-5d91-4b7f-809e-ab9a901d1c17.jpg', '127.0.0.1', '2026-04-01 02:12:56', '$2y$12$MbwH7fPzOUNOrAl9Mj/eTuHmCqh6vuJwgrzT7seaZtf51oIpUF4uq', 1, '2026-03-31 19:12:04', '2026-03-31 19:41:39', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', NULL, '2026-03-31 19:12:04', '2026-03-31 19:41:39', NULL);
 
 -- --------------------------------------------------------
 
@@ -1618,8 +1645,8 @@ INSERT INTO `website_settings` (`id`, `key`, `value`) VALUES
 (19, 'donation_bank_name', 'BCA'),
 (20, 'donation_account_number', '3403635461'),
 (21, 'donation_account_holder', 'Yayasan Sinar Pancaran Putih'),
-(22, 'website_logo_path', 'website/logo-20260331164953-w5xzaxrp.jpg'),
-(23, 'website_favicon_path', 'website/favicon-20260331164805-acbzihnf.png');
+(22, 'website_logo_path', 'website/ppzj7k30N6bXGuVkdxg6bGeZQQBuwKpGN5sUgWWE.png'),
+(23, 'website_favicon_path', 'website/RtoyFmwZiw5mmuy9HQENcK2hWMpa8W11wLxkjsGW.jpg');
 
 --
 -- Indexes for dumped tables
@@ -2031,7 +2058,7 @@ ALTER TABLE `activities`
 -- AUTO_INCREMENT for table `activity_logs`
 --
 ALTER TABLE `activity_logs`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=81;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=96;
 
 --
 -- AUTO_INCREMENT for table `activity_registrations`
@@ -2061,7 +2088,7 @@ ALTER TABLE `donasi`
 -- AUTO_INCREMENT for table `donations`
 --
 ALTER TABLE `donations`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `donation_categories`
@@ -2085,7 +2112,7 @@ ALTER TABLE `failed_jobs`
 -- AUTO_INCREMENT for table `favorite_activities`
 --
 ALTER TABLE `favorite_activities`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `favorit_kegiatan`
@@ -2145,7 +2172,7 @@ ALTER TABLE `kegiatan`
 -- AUTO_INCREMENT for table `login_logs`
 --
 ALTER TABLE `login_logs`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
 
 --
 -- AUTO_INCREMENT for table `log_aktivitas`
@@ -2283,7 +2310,7 @@ ALTER TABLE `role_pengguna`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `website_settings`
