@@ -7,6 +7,7 @@ use App\Models\LoginLog;
 use App\Models\Role;
 use App\Models\User;
 use App\Services\AuditLogService;
+use App\Support\ClientIpResolver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -18,6 +19,11 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+    private function resolvedIp(Request $request): ?string
+    {
+        return ClientIpResolver::resolve($request);
+    }
+
     public function showLogin()
     {
         return view('auth.login', [
@@ -167,7 +173,7 @@ class AuthController extends Controller
             'address' => $validated['address'],
             'password' => Hash::make($validated['password']),
             'is_active' => false,
-            'registration_ip' => $request->ip(),
+            'registration_ip' => $this->resolvedIp($request),
         ]);
 
         $umatRole = Role::where('slug', 'umat')->first();
@@ -282,14 +288,14 @@ class AuthController extends Controller
             $user = $request->user();
             $user->forceFill([
                 'last_login_at' => now(),
-                'last_login_ip' => $request->ip(),
+                'last_login_ip' => $this->resolvedIp($request),
                 'last_login_user_agent' => substr((string) $request->userAgent(), 0, 65535),
             ])->save();
 
             LoginLog::create([
                 'user_id' => $user->id,
                 'email' => $credentials['email'],
-                'ip_address' => $request->ip(),
+                'ip_address' => $this->resolvedIp($request),
                 'user_agent' => (string) $request->userAgent(),
                 'successful' => true,
                 'logged_in_at' => now(),
@@ -302,7 +308,7 @@ class AuthController extends Controller
 
         LoginLog::create([
             'email' => $credentials['email'],
-            'ip_address' => $request->ip(),
+            'ip_address' => $this->resolvedIp($request),
             'user_agent' => (string) $request->userAgent(),
             'successful' => false,
             'logged_in_at' => now(),
@@ -341,7 +347,7 @@ class AuthController extends Controller
         $offlinePassed = false;
 
         if ($useRecaptcha && $captchaMode !== 'offline' && $recaptchaToken !== '') {
-            $recaptchaPassed = $this->verifyRecaptchaToken($recaptchaToken, $request->ip());
+            $recaptchaPassed = $this->verifyRecaptchaToken($recaptchaToken, $this->resolvedIp($request));
         }
 
         if ($useOfflineCaptcha && $captchaMode === 'offline' && $offlineAnswer !== '' && $offlineExpected !== '') {

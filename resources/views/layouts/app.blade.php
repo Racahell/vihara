@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="utf-8">
@@ -25,8 +25,8 @@
                 @else
                     <span class="brand-logo-fallback" aria-hidden="true">
                         <svg viewBox="0 0 64 64" role="img">
-                            <rect x="2" y="2" width="60" height="60" rx="18" fill="#8a6f47"/>
-                            <path d="M13 41c7-8 14-12 23-12s17 4 25 12H13z" fill="#e6fffa"/>
+                            <rect x="2" y="2" width="60" height="60" rx="18" fill="#5E7370"/>
+                            <path d="M13 41c7-8 14-12 23-12s17 4 25 12H13z" fill="#D4DEDC"/>
                             <path d="M32 14c3 4 5 8 5 12a5 5 0 1 1-10 0c0-4 2-8 5-12z" fill="#ffffff"/>
                         </svg>
                     </span>
@@ -91,3 +91,5 @@
 </div>
 </body>
 </html>
+
+

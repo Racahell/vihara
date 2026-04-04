@@ -17,6 +17,9 @@
         .thanks { margin-top: 14px; text-align: center; color: #4b5d66; }
         .sign { width: 100%; margin-top: 20px; border-collapse: collapse; }
         .sign td { border: 0; }
+        .sign-name { display: block; margin-top: 8px; }
+        .sign-line { display: block; margin-top: 18px; }
+        .digital-note { margin-top: 14px; font-size: 10px; color: #6c7d85; text-align: left; }
     </style>
 </head>
 <body>
@@ -60,12 +63,14 @@
             <tr>
                 <td></td>
                 <td style="text-align:center; width:220px;">
-                    Penerima,<br>{{ $organizationName ?? config('app.name') }}<br><br><br>
-                    <strong>{{ $receiverName ?? ($approver->name ?? '-') }}</strong><br>
-                    (____________________)
+                    Penerima,<br>{{ $organizationName ?? config('app.name') }}
+                    <strong class="sign-name">{{ $receiverName ?? ($approver->name ?? '-') }}</strong>
+                    <span class="sign-line">(____________________)</span>
                 </td>
             </tr>
         </table>
+
+        <div class="digital-note">Dokumen ini bersifat digital, tidak perlu tanda tangan langsung.</div>
     </div>
 </body>
 </html>

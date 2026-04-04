@@ -6,29 +6,23 @@
     $tab = $tab ?? 'active';
 @endphp
 
-<div class="grid-2">
-    @if($isManager)
-        <div class="card">
-            <h3>Buat Kegiatan</h3>
-            <form action="{{ route('admin.activities.store') }}" method="POST" class="form-grid">
-                @csrf
-                <input type="text" name="title" placeholder="Judul kegiatan" required>
-                <textarea name="description" placeholder="Deskripsi"></textarea>
-                <input type="text" name="location" placeholder="Lokasi">
-                <input type="datetime-local" name="start_at" required>
-                <input type="datetime-local" name="end_at">
-                <input type="number" name="quota" placeholder="Kuota" min="1" required>
-                <button type="submit">Simpan Kegiatan</button>
-            </form>
-        </div>
-    @endif
-    <div class="card">
-        <h3>Catatan</h3>
-        <p class="muted">Hapus data kegiatan oleh admin/superadmin memakai soft delete. Data masuk ke tab Deleted dan bisa direstore oleh superadmin.</p>
+@if($isManager)
+    <div class="card activities-create-card" style="width:100%;max-width:none;">
+        <h3>Buat Kegiatan</h3>
+        <form action="{{ route('admin.activities.store') }}" method="POST" class="form-grid">
+            @csrf
+            <input type="text" name="title" placeholder="Judul kegiatan" required>
+            <textarea name="description" placeholder="Deskripsi"></textarea>
+            <input type="text" name="location" placeholder="Lokasi">
+            <input type="datetime-local" name="start_at" required>
+            <input type="datetime-local" name="end_at">
+            <input type="number" name="quota" placeholder="Kuota" min="1" required>
+            <button type="submit">Simpan Kegiatan</button>
+        </form>
     </div>
-</div>
+@endif
 
-<div class="card" style="margin-top:14px;">
+<div class="card" style="margin-top:{{ $isManager ? 14 : 0 }}px;">
     <div class="table-toolbar" style="margin:0;">
         <div class="tabs">
             <a href="{{ route('admin.activities.index', ['tab' => 'active', 'per_page' => $perPage ?? 10]) }}" class="tab {{ $tab === 'active' ? 'active' : '' }}">Kegiatan Aktif</a>

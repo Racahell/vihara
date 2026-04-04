@@ -19,8 +19,8 @@
                 @else
                     <div class="auth-logo-mark" aria-hidden="true">
                         <svg viewBox="0 0 64 64" role="img">
-                            <circle cx="32" cy="32" r="30" fill="#ecfdf5" stroke="#99f6e4" stroke-width="2"/>
-                            <path d="M13 39c6 0 10-3 19-3s13 3 19 3" fill="none" stroke="#0f766e" stroke-width="3" stroke-linecap="round"/>
+                            <circle cx="32" cy="32" r="30" fill="#EDF3FA" stroke="#C9D9EA" stroke-width="2"/>
+                            <path d="M13 39c6 0 10-3 19-3s13 3 19 3" fill="none" stroke="#3B5F86" stroke-width="3" stroke-linecap="round"/>
                             <path d="M24 30l8-12 8 12" fill="none" stroke="#ec4899" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
                             <path d="M29 30h6" fill="none" stroke="#ec4899" stroke-width="3" stroke-linecap="round"/>
                         </svg>
@@ -49,3 +49,6 @@
 </div>
 </body>
 </html>
+
+
+

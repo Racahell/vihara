@@ -13,9 +13,10 @@
         @csrf
         <div id="participants-wrapper" style="display:grid;gap:10px;">
             @php
-                $oldParticipants = old('participants', [
-                    ['name' => auth()->user()->name, 'age' => '', 'gender' => '', 'address' => ''],
-                ]);
+                $defaultParticipants = !empty($savedParticipants ?? [])
+                    ? $savedParticipants
+                    : [['name' => auth()->user()->name, 'age' => '', 'gender' => '', 'address' => '']];
+                $oldParticipants = old('participants', $defaultParticipants);
             @endphp
             @foreach($oldParticipants as $index => $participant)
                 <div class="card participant-item" style="padding:12px;display:grid;gap:8px;" data-participant-item>

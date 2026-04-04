@@ -29,9 +29,6 @@
                     </button>
                 </form>
             </div>
-            @if($isFavorite)
-                <div class="pill" style="margin-top:8px;">Tersimpan di Favorit</div>
-            @endif
         </div>
     @endforeach
 </div>

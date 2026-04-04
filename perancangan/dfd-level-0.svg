@@ -1,0 +1,51 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="900" viewBox="0 0 1500 900">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#1f2937" />
+    </marker>
+    <style>
+      .title { font: 700 32px Arial, sans-serif; fill: #111827; }
+      .entity { fill: #fde68a; stroke: #92400e; stroke-width: 2; }
+      .system { fill: #bfdbfe; stroke: #1d4ed8; stroke-width: 3; }
+      .label { font: 700 18px Arial, sans-serif; fill: #111827; }
+      .small { font: 14px Arial, sans-serif; fill: #111827; }
+      .flow { stroke: #1f2937; stroke-width: 2; marker-end: url(#arrow); fill: none; }
+    </style>
+  </defs>
+
+  <text x="750" y="55" text-anchor="middle" class="title">DFD Level 0 (Context Diagram) - Sistem Manajemen Vihara</text>
+
+  <rect x="560" y="300" width="380" height="220" rx="20" class="system" />
+  <text x="750" y="395" text-anchor="middle" class="label">(0) Sistem Manajemen Vihara</text>
+
+  <rect x="90" y="180" width="300" height="90" rx="12" class="entity" />
+  <text x="240" y="233" text-anchor="middle" class="label">E1 Umat / Guest</text>
+
+  <rect x="90" y="520" width="300" height="90" rx="12" class="entity" />
+  <text x="240" y="573" text-anchor="middle" class="label">E2 Admin / Petugas</text>
+
+  <rect x="1110" y="220" width="300" height="90" rx="12" class="entity" />
+  <text x="1260" y="273" text-anchor="middle" class="label">E3 Midtrans</text>
+
+  <rect x="1110" y="520" width="300" height="90" rx="12" class="entity" />
+  <text x="1260" y="573" text-anchor="middle" class="label">E4 Discord Webhook</text>
+
+  <line x1="390" y1="225" x2="560" y2="360" class="flow" />
+  <line x1="560" y1="400" x2="390" y2="250" class="flow" />
+
+  <line x1="390" y1="560" x2="560" y2="460" class="flow" />
+  <line x1="560" y1="490" x2="390" y2="585" class="flow" />
+
+  <line x1="940" y1="360" x2="1110" y2="265" class="flow" />
+  <line x1="1110" y1="290" x2="940" y2="390" class="flow" />
+
+  <line x1="940" y1="450" x2="1110" y2="560" class="flow" />
+
+  <text x="405" y="290" class="small">registrasi, daftar kegiatan, donasi</text>
+  <text x="390" y="330" class="small">status, tiket, riwayat, kwitansi</text>
+  <text x="420" y="530" class="small">kelola data, verifikasi, laporan</text>
+  <text x="410" y="620" class="small">dashboard, data peserta, log</text>
+  <text x="965" y="330" class="small">request transaksi</text>
+  <text x="965" y="380" class="small">callback pembayaran</text>
+  <text x="970" y="515" class="small">kirim notifikasi</text>
+</svg>

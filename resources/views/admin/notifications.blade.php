@@ -27,15 +27,20 @@
 
 <div class="grid-2" style="margin-top:12px;">
     <div class="table-wrap no-scroll">
-        <table>
+        <table class="notification-table notification-table-system">
+            <colgroup>
+                <col class="col-time">
+                <col class="col-action">
+                <col class="col-desc">
+            </colgroup>
             <thead><tr><th colspan="3">Notifikasi Sistem Terbaru</th></tr></thead>
             <thead><tr><th>Waktu</th><th>Aksi</th><th>Deskripsi</th></tr></thead>
             <tbody>
             @forelse($recentNotifications as $item)
                 <tr>
-                    <td>{{ $item->created_at?->format('d-m-Y H:i:s') }}</td>
-                    <td>{{ strtoupper($item->action) }}</td>
-                    <td>{{ $item->description }}</td>
+                    <td>{{ $item->created_at?->format('d-m-Y H:i:s') ?? '-' }}</td>
+                    <td>{{ $item->action ? strtoupper($item->action) : '-' }}</td>
+                    <td>{{ $item->description ?: '-' }}</td>
                 </tr>
             @empty
                 <tr><td colspan="3">Belum ada notifikasi sistem.</td></tr>
@@ -46,16 +51,22 @@
     </div>
 
     <div class="table-wrap no-scroll">
-        <table>
+        <table class="notification-table notification-table-discord">
+            <colgroup>
+                <col class="col-time">
+                <col class="col-event">
+                <col class="col-status">
+                <col class="col-response">
+            </colgroup>
             <thead><tr><th colspan="4">Notifikasi Discord Terbaru</th></tr></thead>
             <thead><tr><th>Waktu</th><th>Event</th><th>Status</th><th>Response</th></tr></thead>
             <tbody>
             @forelse($discordNotifications as $item)
                 <tr>
-                    <td>{{ $item->created_at?->format('d-m-Y H:i:s') }}</td>
-                    <td>{{ $item->event }}</td>
-                    <td>{{ $item->status_code }}</td>
-                    <td>{{ \Illuminate\Support\Str::limit((string) $item->response_body, 80) }}</td>
+                    <td>{{ $item->created_at?->format('d-m-Y H:i:s') ?? '-' }}</td>
+                    <td>{{ $item->event ?: '-' }}</td>
+                    <td>{{ $item->status_code ?? '-' }}</td>
+                    <td class="response-text" title="{{ (string) ($item->response_body ?? '-') }}">{{ \Illuminate\Support\Str::limit((string) ($item->response_body ?? '-'), 180) }}</td>
                 </tr>
             @empty
                 <tr><td colspan="4">Belum ada notifikasi Discord.</td></tr>

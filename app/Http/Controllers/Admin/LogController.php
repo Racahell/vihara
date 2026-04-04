@@ -27,7 +27,10 @@ class LogController extends Controller
         }
 
         $activityLogs = $tab === 'activity'
-            ? ActivityLog::latest()->paginate($perPage, ['*'], 'activity_page')->withQueryString()
+            ? ActivityLog::with('user:id,name,address')
+                ->latest()
+                ->paginate($perPage, ['*'], 'activity_page')
+                ->withQueryString()
             : null;
         $loginLogs = $tab === 'login'
             ? LoginLog::latest('logged_in_at')->paginate($perPage, ['*'], 'login_page')->withQueryString()

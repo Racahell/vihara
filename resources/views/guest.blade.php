@@ -22,8 +22,8 @@
                 @else
                     <span class="guest-brand-logo" aria-hidden="true">
                         <svg viewBox="0 0 64 64" role="img">
-                            <rect x="2" y="2" width="60" height="60" rx="18" fill="#8a6f47"/>
-                            <path d="M13 41c7-8 14-12 23-12s17 4 25 12H13z" fill="#e6fffa"/>
+                            <rect x="2" y="2" width="60" height="60" rx="18" fill="#3B5F86"/>
+                            <path d="M13 41c7-8 14-12 23-12s17 4 25 12H13z" fill="#C7D9EC"/>
                             <path d="M32 14c3 4 5 8 5 12a5 5 0 1 1-10 0c0-4 2-8 5-12z" fill="#ffffff"/>
                         </svg>
                     </span>
@@ -67,11 +67,11 @@
             </div>
             <div class="guest-symbol-card">
                 <h3>Makna Simbol</h3>
-                <p><strong>Perahu</strong> melambangkan perjalanan kebajikan bersama menuju kebijaksanaan.</p>
-                <p><strong>Teratai</strong> melambangkan kemurnian hati, tumbuh di tengah kehidupan namun tetap bersih.</p>
+                <p><strong>Roda Dharma</strong> melambangkan tuntunan ajaran untuk menapaki jalan hidup yang benar dan bijaksana.</p>
+                <p><strong>Lentera</strong> melambangkan cahaya batin, harapan, dan semangat untuk menerangi sesama.</p>
                 <div class="guest-symbols">
-                    <span>PERAHU</span>
-                    <span>TERATAI</span>
+                    <span>RODA DHARMA</span>
+                    <span>LENTERA</span>
                 </div>
             </div>
         </div>
@@ -121,7 +121,15 @@
                         referrerpolicy="no-referrer-when-downgrade"></iframe>
                 </div>
                 <div style="margin-top:10px;">
-                    <a class="btn btn-secondary" href="{{ $mapUrl !== '' ? $mapUrl : $mapEmbedUrl }}" target="_blank" rel="noopener">Buka di Google Maps</a>
+                    <a
+                        class="btn btn-secondary"
+                        href="{{ $mapUrl !== '' ? $mapUrl : $mapEmbedUrl }}"
+                        target="_blank"
+                        rel="noopener"
+                        data-map-route
+                        data-destination="{{ $mapAddress }}">
+                        Lihat Lokasi
+                    </a>
                 </div>
             </div>
         </div>
@@ -205,3 +213,8 @@
 </div>
 </body>
 </html>
+
+
+
+
+

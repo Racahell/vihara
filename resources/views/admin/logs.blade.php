@@ -46,16 +46,22 @@
                     <td>{{ $log->description }}</td>
                     <td>{{ $log->target_type }}#{{ $log->target_id }}</td>
                     <td>
-                        @if($log->ip_address)
+                        @php
+                            $userAddress = trim((string) ($log->user?->address ?? ''));
+                            $ipAddress = trim((string) ($log->ip_address ?? ''));
+                            $isPublicIp = $ipAddress !== '' && filter_var($ipAddress, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false;
+                            $mapQuery = $userAddress !== '' ? $userAddress : ($isPublicIp ? $ipAddress : '');
+                        @endphp
+                        @if($mapQuery !== '')
                             <a
                                 class="btn btn-outline"
-                                href="https://www.google.com/maps/search/?api=1&query={{ urlencode((string) $log->ip_address) }}"
+                                href="https://www.google.com/maps/search/?api=1&query={{ urlencode($mapQuery) }}"
                                 target="_blank"
                                 rel="noopener">
-                                Lihat Google Maps
+                                Lihat Titik
                             </a>
                         @else
-                            <span class="muted">IP tidak ada</span>
+                            <span class="muted">Lokasi tidak tersedia</span>
                         @endif
                     </td>
                 </tr>

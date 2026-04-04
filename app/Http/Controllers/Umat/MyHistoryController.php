@@ -11,13 +11,27 @@ use Illuminate\Http\Request;
 
 class MyHistoryController extends Controller
 {
-    public function __invoke()
+    public function __invoke(Request $request)
     {
         $user = auth()->user();
+        $perPage = (int) $request->integer('per_page', 5);
+        $perPage = in_array($perPage, [5, 10, 15, 20], true) ? $perPage : 5;
+
+        $registrations = ActivityRegistration::with('activity')
+            ->where('user_id', $user->id)
+            ->latest('registered_at')
+            ->paginate($perPage, ['*'], 'reg_page')
+            ->withQueryString();
+
+        $donations = Donation::where('user_id', $user->id)
+            ->latest()
+            ->paginate($perPage, ['*'], 'don_page')
+            ->withQueryString();
 
         return view('umat.history', [
-            'registrations' => ActivityRegistration::with('activity')->where('user_id', $user->id)->latest('registered_at')->get(),
-            'donations' => Donation::where('user_id', $user->id)->latest()->get(),
+            'perPage' => $perPage,
+            'registrations' => $registrations,
+            'donations' => $donations,
         ]);
     }
 

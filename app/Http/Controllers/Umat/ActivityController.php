@@ -27,7 +27,12 @@ class ActivityController extends Controller
 
     public function show(Activity $activity)
     {
-        return view('umat.activity-detail', ['activity' => $activity]);
+        $savedParticipants = $this->loadSavedParticipants();
+
+        return view('umat.activity-detail', [
+            'activity' => $activity,
+            'savedParticipants' => $savedParticipants,
+        ]);
     }
 
     public function register(Request $request, Activity $activity, AuditLogService $auditLogService)
@@ -42,6 +47,15 @@ class ActivityController extends Controller
         ]);
         $participants = collect($data['participants'])->values();
         $requestedCount = $participants->count();
+        $participantPresets = $participants
+            ->map(fn (array $participant): array => [
+                'name' => trim((string) $participant['name']),
+                'age' => (string) ((int) $participant['age']),
+                'gender' => (string) $participant['gender'],
+                'address' => trim((string) $participant['address']),
+            ])
+            ->values()
+            ->all();
 
         if (($activity->registered_count + $requestedCount) > $activity->quota) {
             return back()->withErrors(['quota' => 'Kuota kegiatan sudah penuh.']);
@@ -50,7 +64,7 @@ class ActivityController extends Controller
         $createdCount = 0;
         $codes = [];
 
-        DB::transaction(function () use ($participants, $activity, $requestedCount, $user, &$createdCount, &$codes, $request, $auditLogService): void {
+        DB::transaction(function () use ($participants, $activity, $requestedCount, $participantPresets, $user, &$createdCount, &$codes, $request, $auditLogService): void {
             $lockedActivity = Activity::query()->whereKey($activity->id)->lockForUpdate()->firstOrFail();
             if (($lockedActivity->registered_count + $requestedCount) > $lockedActivity->quota) {
                 throw ValidationException::withMessages([
@@ -87,6 +101,10 @@ class ActivityController extends Controller
                     $registration->id
                 );
             }
+
+            $user->forceFill([
+                'participant_presets' => $participantPresets,
+            ])->save();
 
             $lockedActivity->increment('registered_count', $createdCount);
         });
@@ -134,5 +152,89 @@ class ActivityController extends Controller
             'favoriteIds' => $favoriteIds,
             'favoritesOnly' => $favoritesOnly,
         ]);
+    }
+
+    /**
+     * @return array<int, array{name:string,age:string,gender:string,address:string}>
+     */
+    private function loadSavedParticipants(): array
+    {
+        $user = auth()->user();
+        if (! $user) {
+            return [];
+        }
+
+        $presets = $user->participant_presets;
+        if (is_array($presets) && ! empty($presets)) {
+            $participants = [];
+            foreach ($presets as $item) {
+                if (! is_array($item)) {
+                    continue;
+                }
+
+                $name = trim((string) ($item['name'] ?? ''));
+                if ($name === '') {
+                    continue;
+                }
+
+                $participants[] = [
+                    'name' => $name,
+                    'age' => (string) ($item['age'] ?? ''),
+                    'gender' => (string) ($item['gender'] ?? ''),
+                    'address' => trim((string) ($item['address'] ?? '')),
+                ];
+            }
+
+            if (! empty($participants)) {
+                return array_slice($participants, 0, 10);
+            }
+        }
+
+        $userId = (int) $user->id;
+        $rows = ActivityRegistration::query()
+            ->where('user_id', $userId)
+            ->where('registration_type', 'regular')
+            ->whereNotNull('participant_name')
+            ->orderByDesc('registered_at')
+            ->orderByDesc('id')
+            ->get([
+                'participant_name',
+                'participant_age',
+                'participant_gender',
+                'participant_address',
+            ]);
+
+        $seen = [];
+        $participants = [];
+
+        foreach ($rows as $row) {
+            $name = trim((string) $row->participant_name);
+            $age = $row->participant_age !== null ? (string) $row->participant_age : '';
+            $gender = (string) ($row->participant_gender ?? '');
+            $address = trim((string) ($row->participant_address ?? ''));
+
+            if ($name === '') {
+                continue;
+            }
+
+            $key = strtolower($name) . '|' . $age . '|' . $gender . '|' . strtolower($address);
+            if (isset($seen[$key])) {
+                continue;
+            }
+            $seen[$key] = true;
+
+            $participants[] = [
+                'name' => $name,
+                'age' => $age,
+                'gender' => $gender,
+                'address' => $address,
+            ];
+
+            if (count($participants) >= 10) {
+                break;
+            }
+        }
+
+        return $participants;
     }
 }

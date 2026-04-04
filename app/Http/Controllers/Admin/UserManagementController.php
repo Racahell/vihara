@@ -7,6 +7,7 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 use App\Services\AuditLogService;
+use App\Support\ClientIpResolver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -194,7 +195,7 @@ class UserManagementController extends Controller
             'is_active' => (bool) $data['is_active'],
             'email_verified_at' => (bool) $data['is_active'] ? now() : null,
             'activated_at' => (bool) $data['is_active'] ? now() : null,
-            'registration_ip' => $request->ip(),
+            'registration_ip' => ClientIpResolver::resolve($request),
         ]);
 
         $user->roles()->sync([$data['role_id']]);

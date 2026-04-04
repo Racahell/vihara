@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\ActivityLog;
+use App\Support\ClientIpResolver;
 use Illuminate\Http\Request;
 
 class AuditLogService
@@ -15,7 +16,7 @@ class AuditLogService
             'target_type' => $targetType,
             'target_id' => $targetId,
             'description' => $description,
-            'ip_address' => $request->ip(),
+            'ip_address' => ClientIpResolver::resolve($request),
             'user_agent' => substr((string) $request->userAgent(), 0, 65535),
         ]);
     }

@@ -42,6 +42,7 @@ class User extends Authenticatable
             'is_active' => 'boolean',
             'activated_at' => 'datetime',
             'last_login_at' => 'datetime',
+            'participant_presets' => 'array',
         ];
     }
 

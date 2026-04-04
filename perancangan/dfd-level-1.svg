@@ -1,0 +1,100 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1100" viewBox="0 0 1800 1100">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#2b2b2b" />
+    </marker>
+    <style>
+      .title { font: 700 30px Arial, sans-serif; fill: #1f2937; }
+      .entity { fill: #fde68a; stroke: #92400e; stroke-width: 2; }
+      .process { fill: #bfdbfe; stroke: #1d4ed8; stroke-width: 2; }
+      .store { fill: #d1fae5; stroke: #065f46; stroke-width: 2; }
+      .label { font: 600 16px Arial, sans-serif; fill: #111827; }
+      .small { font: 13px Arial, sans-serif; fill: #111827; }
+      .flow { stroke: #2b2b2b; stroke-width: 1.8; marker-end: url(#arrow); fill: none; }
+    </style>
+  </defs>
+
+  <text x="900" y="45" text-anchor="middle" class="title">DFD Level 1 - Sistem Manajemen Vihara</text>
+
+  <rect x="70" y="140" width="260" height="80" rx="10" class="entity" />
+  <text x="200" y="185" text-anchor="middle" class="label">E1 Umat / Guest</text>
+
+  <rect x="70" y="310" width="260" height="80" rx="10" class="entity" />
+  <text x="200" y="355" text-anchor="middle" class="label">E2 Admin / Petugas</text>
+
+  <rect x="1470" y="190" width="260" height="80" rx="10" class="entity" />
+  <text x="1600" y="235" text-anchor="middle" class="label">E3 Midtrans</text>
+
+  <rect x="1470" y="360" width="260" height="80" rx="10" class="entity" />
+  <text x="1600" y="405" text-anchor="middle" class="label">E4 Discord Webhook</text>
+
+  <rect x="460" y="110" width="280" height="100" rx="14" class="process" />
+  <text x="600" y="155" text-anchor="middle" class="label">P1 Auth &amp; Profil</text>
+
+  <rect x="780" y="110" width="280" height="100" rx="14" class="process" />
+  <text x="920" y="155" text-anchor="middle" class="label">P2 Kegiatan &amp; Daftar</text>
+
+  <rect x="1100" y="110" width="280" height="100" rx="14" class="process" />
+  <text x="1240" y="155" text-anchor="middle" class="label">P3 Donasi &amp; Bayar</text>
+
+  <rect x="620" y="280" width="280" height="100" rx="14" class="process" />
+  <text x="760" y="325" text-anchor="middle" class="label">P4 Check-in</text>
+
+  <rect x="940" y="280" width="280" height="100" rx="14" class="process" />
+  <text x="1080" y="325" text-anchor="middle" class="label">P5 Laporan &amp; Monitoring</text>
+
+  <rect x="280" y="610" width="180" height="70" rx="8" class="store" />
+  <text x="370" y="650" text-anchor="middle" class="label">D1 Users</text>
+
+  <rect x="500" y="610" width="180" height="70" rx="8" class="store" />
+  <text x="590" y="650" text-anchor="middle" class="label">D2 Activities</text>
+
+  <rect x="720" y="610" width="200" height="70" rx="8" class="store" />
+  <text x="820" y="650" text-anchor="middle" class="label">D3 Registrations</text>
+
+  <rect x="960" y="610" width="180" height="70" rx="8" class="store" />
+  <text x="1050" y="650" text-anchor="middle" class="label">D4 Donations</text>
+
+  <rect x="1180" y="610" width="180" height="70" rx="8" class="store" />
+  <text x="1270" y="650" text-anchor="middle" class="label">D5 Attendance</text>
+
+  <rect x="1400" y="610" width="160" height="70" rx="8" class="store" />
+  <text x="1480" y="650" text-anchor="middle" class="label">D6 Logs</text>
+
+  <rect x="1590" y="610" width="170" height="70" rx="8" class="store" />
+  <text x="1675" y="650" text-anchor="middle" class="label">D7 Settings</text>
+
+  <line x1="330" y1="170" x2="460" y2="150" class="flow" />
+  <line x1="460" y1="178" x2="330" y2="205" class="flow" />
+
+  <line x1="330" y1="350" x2="620" y2="320" class="flow" />
+  <line x1="330" y1="340" x2="780" y2="150" class="flow" />
+  <line x1="330" y1="370" x2="1100" y2="170" class="flow" />
+  <line x1="940" y1="340" x2="330" y2="365" class="flow" />
+
+  <line x1="1380" y1="160" x2="1470" y2="220" class="flow" />
+  <line x1="1470" y1="242" x2="1380" y2="190" class="flow" />
+
+  <line x1="1240" y1="210" x2="1240" y2="610" class="flow" />
+  <line x1="760" y1="380" x2="820" y2="610" class="flow" />
+  <line x1="1080" y1="380" x2="1050" y2="610" class="flow" />
+
+  <line x1="600" y1="210" x2="370" y2="610" class="flow" />
+  <line x1="920" y1="210" x2="590" y2="610" class="flow" />
+  <line x1="920" y1="210" x2="820" y2="610" class="flow" />
+  <line x1="760" y1="380" x2="1270" y2="610" class="flow" />
+  <line x1="1080" y1="380" x2="1480" y2="610" class="flow" />
+  <line x1="1080" y1="380" x2="1675" y2="610" class="flow" />
+
+  <line x1="600" y1="210" x2="1480" y2="390" class="flow" />
+  <line x1="920" y1="210" x2="1480" y2="400" class="flow" />
+  <line x1="1240" y1="210" x2="1480" y2="410" class="flow" />
+  <line x1="760" y1="380" x2="1480" y2="420" class="flow" />
+  <line x1="1080" y1="380" x2="1480" y2="430" class="flow" />
+
+  <text x="390" y="145" class="small">registrasi/login</text>
+  <text x="375" y="225" class="small">status akun/profil</text>
+  <text x="1330" y="145" class="small">request pembayaran</text>
+  <text x="1330" y="205" class="small">callback status</text>
+  <text x="1320" y="375" class="small">notifikasi sistem</text>
+</svg>

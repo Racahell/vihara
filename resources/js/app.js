@@ -361,7 +361,8 @@ const initMapLocationButtons = () => {
     };
 
     document.querySelectorAll('[data-map-search]').forEach((btn) => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', (event) => {
+            event.preventDefault();
             const destination = (btn.dataset.destination || '').trim();
             if (!destination) {
                 window.alert('Lokasi kegiatan belum tersedia.');
@@ -372,7 +373,8 @@ const initMapLocationButtons = () => {
     });
 
     document.querySelectorAll('[data-map-route]').forEach((btn) => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', (event) => {
+            event.preventDefault();
             const destination = (btn.dataset.destination || '').trim();
             if (!destination) {
                 window.alert('Lokasi kegiatan belum tersedia.');
